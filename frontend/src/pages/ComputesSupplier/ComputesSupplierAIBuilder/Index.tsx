@@ -325,7 +325,6 @@ const ComputesSupplierAIBuilder = (props: ComputesSupplierAIBuilderProps) => {
     )
   ) : (
     <Deposit
-      totalHours={10}
       priceDetailGPU={10}
       onHandleRent={handleBuy}
       setIsDeposit={v => setIsDeposit(v)}

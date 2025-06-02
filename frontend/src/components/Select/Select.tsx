@@ -1,4 +1,4 @@
-import React, { CSSProperties, ReactElement, useCallback, useEffect, useRef, useState } from "react";
+import React, { CSSProperties, ReactElement, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { IconArrowLeft } from "@/assets/icons/Index";
 import useOnClickOutside from "@/hooks/useOnClickOutside";
@@ -46,6 +46,7 @@ export type TSelectProps = {
   onClickOutside?: () => void;
   isRequired?: boolean;
   canFilter?: boolean;
+  limitHeight?: boolean;
 };
 
 const Select: React.FC<TSelectProps> = (props) => {
@@ -72,6 +73,7 @@ const Select: React.FC<TSelectProps> = (props) => {
 		customRenderLabel,
     onClickOutside,
     isRequired,
+    limitHeight,
   } = props;
 
   const selectRef = useRef<HTMLDivElement | null>(null);
@@ -93,7 +95,7 @@ const Select: React.FC<TSelectProps> = (props) => {
   });
   const hasData = data && data.length > 0;
   // const zIndex = useRef(highestZIndex() + 1);
-  const MAX_HEIGHT = 400;
+  // const MAX_HEIGHT = 400;
 
   const handleClickOutside = useCallback(
     (e: MouseEvent) => {
@@ -169,6 +171,7 @@ const Select: React.FC<TSelectProps> = (props) => {
         let top = wrapperRect.top + window.scrollY + selectRef.current.clientHeight + 10;
         let left = wrapperRect.left;
         let width = withContent ? parseInt(withContent) : Math.min(slRef.current.getBoundingClientRect().width, 400);
+        let height = undefined;
 
         if (left + width > window.innerWidth) {
           left = window.innerWidth - width - 8;
@@ -178,19 +181,36 @@ const Select: React.FC<TSelectProps> = (props) => {
           width = selectRef.current.getBoundingClientRect().width;
         }
 
+        if (limitHeight) {
+          const maxHeight = window.innerHeight - top;
+
+          if (slRef.current.clientHeight > maxHeight - 10) {
+            height = maxHeight - 10;
+          }
+        }
+
         setHeight(slRef.current.clientHeight);
 
         setStyle({
           top,
           left,
           width,
+          height,
           zIndex: highestZIndex() + 1,
         });
       }
     }
-  }, [isShowListOption, withContent, isLoading]);
+  }, [isShowListOption, withContent, isLoading, limitHeight]);
 
   useOnClickOutside(slRef, handleClickOutside);
+
+  const maxHeight = useMemo(() => {
+    if (!style.top) {
+      return window.innerHeight;
+    }
+
+    return Math.min(400, window.innerHeight - Number(style.top));
+  }, [style.top]);
 
   return (
     <>
@@ -238,7 +258,7 @@ const Select: React.FC<TSelectProps> = (props) => {
             hasData ? (
               <ListOptions
                 className={`${
-                  height >= MAX_HEIGHT - 10
+                  height >= maxHeight - 10
                     ? "scrollbar select-scroll"
                     : "c-select__list-content"
                 } ${className ? className : ""}`}
@@ -261,7 +281,7 @@ const Select: React.FC<TSelectProps> = (props) => {
         ) : (
           <ListOptions
             className={`${
-              height >= MAX_HEIGHT - 10
+              height >= maxHeight - 10
                 ? "scrollbar select-scroll"
                 : "c-select__list-content"
             } ${className ? className : ""}`}

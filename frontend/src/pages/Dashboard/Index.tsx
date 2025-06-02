@@ -3,19 +3,23 @@ import { IconPlay } from "@/assets/icons/Index";
 import { infoDialog } from "@/components/Dialog";
 import { TNavbarBreadcrumb } from "@/components/Navbar/Navbar";
 import VideoPlayer from "@/components/VideoPlayer/VideoPlayer";
-import { DASHBOARD_COMPUTES, DASHBOARD_CREATE, DASHBOARD_MODELS } from "@/constants/dashboardContent";
+import {
+  DASHBOARD_COMPUTES,
+  DASHBOARD_CREATE,
+  DASHBOARD_MARKETPLACES,
+} from "@/constants/dashboardContent";
 import { VIDEO_URL } from "@/constants/projectConstants";
-import { useDashboardCalculate } from "@/hooks/dashboard/useDashboardCalculate";
 import { useUserLayout } from "@/layouts/UserLayout";
 import styles from "./Dashboard.module.scss";
 import DashBoardItem from "./DashboardItem";
 import { useLocation } from "react-router-dom";
 import useDebouncedEffect from "@/hooks/useDebouncedEffect";
+import { useDashboardCalculate } from "@/hooks/dashboard/useDashboardCalculate";
 
 const DashboardPage = () => {
   const userLayout = useUserLayout();
-  const { data } = useDashboardCalculate();
   const {state} = useLocation();
+  const { data } = useDashboardCalculate();
 
   useEffect(() => {
     const actions: TNavbarBreadcrumb[] = [
@@ -45,27 +49,17 @@ const DashboardPage = () => {
 
   const computes = useMemo(() => {
     return DASHBOARD_COMPUTES.map((item) => {
-      if (item.index === 2) {
+      if (item.index === 6) {
         return {
           ...item,
-          count: data?.lease_computes_count ?? 0,
-          url: (data?.lease_computes_count ?? 0) > 0 ? "/infrastructure/compute-listings/" : "/lease-out-compute",
+          count: data?.rented_models_count ?? 0,
         };
-      }
-      if (item.index === 3) {
+      } else if (item.index === 3) {
         return { ...item, count: data?.rented_compute_count ?? 0 };
       }
+
       return item;
     });
-
-  }, [data]);
-
-  const models = useMemo(() => {
-    return DASHBOARD_MODELS.map((item) =>
-      item.index === 3
-        ? { ...item, count: data?.rented_models_count }
-        : item
-    );
 
   }, [data]);
 
@@ -98,7 +92,7 @@ const DashboardPage = () => {
   return (
     <div className={styles.pDashboard}>
       <div className={styles.pDashboardCol}>
-        <h3 className={styles.pDashboardTitle}>Computes</h3>
+        <h3 className={styles.pDashboardTitle}>Dashboard</h3>
         {computes.map((item) => (
           <DashBoardItem data={item} key={"compute-" + item.index}/>
         ))}
@@ -106,12 +100,12 @@ const DashboardPage = () => {
       <div className={styles.pDashboardCol}>
         <h3 className={styles.pDashboardTitle}>Create a project</h3>
         {DASHBOARD_CREATE.map((item) => (
-          <DashBoardItem data={item} key={"flow-" + item.index} toggleableDesc={true}/>
+          <DashBoardItem data={item} key={"flow-" + item.index} toggleableDesc={item.index !== 6} />
         ))}
       </div>
       <div className={styles.pDashboardCol}>
-        <h3 className={styles.pDashboardTitle}>Models</h3>
-        {models.map((item) => (
+        <h3 className={styles.pDashboardTitle}>Marketplace</h3>
+        {DASHBOARD_MARKETPLACES.map((item) => (
           <DashBoardItem data={item} key={"model-" + item.index}/>
         ))}
       </div>

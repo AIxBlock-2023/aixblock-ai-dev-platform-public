@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useMemo /*, useState*/ } from "react";
+import { Fragment, ReactNode, useEffect, useMemo /*, useState*/ } from "react";
 import "./Deposit.scss";
 import {
   IconArrowLeft,
@@ -13,26 +13,29 @@ import InputBase from "../../../components/InputBase/InputBase";
 import IconAddComputes from "../../../assets/icons/IconAddComputes";
 import { useNavigate } from "react-router-dom";
 import { SelectedOption } from "../Index";
-import { formatFloat } from "../../../utils/customFormat";
+import { formatFloat } from "@/utils/customFormat";
 import Topup from "../../../components/Topup/Topup";
 import { TComputeMarketplaceCartDiskSizes } from "../../ComputesMarketplaceV2/Index";
+import { useMarketplaceProvider } from "@/pages/Marketplace/MarketplaceProvider";
 
 export interface TDeposit {
-  totalHours: number;
   priceDetailGPU: number;
   onHandleRent: () => void;
   onHandleRentCrypto?: () => void;
   customTitle?: string;
-  customNote?: string;
+  customNote?: ReactNode;
   listCardCharge?: SelectedOption[];
   setIsDeposit?: (isDeposit: boolean) => void;
   onHandleDeleteCard?: (id: string) => void;
   isMarketPleaces?: boolean;
   balance?: number;
   diskSizes?: TComputeMarketplaceCartDiskSizes;
+  preview?: string | null
 }
 
 const Deposit = ({
+  customTitle,
+  customNote,
   priceDetailGPU,
   onHandleRent,
   listCardCharge,
@@ -40,9 +43,11 @@ const Deposit = ({
   onHandleDeleteCard,
   isMarketPleaces = false,
   diskSizes = {},
+  preview,
   onHandleRentCrypto,
 }: TDeposit) => {
   const navigate = useNavigate();
+  const { setPreviewTemplateModal } = useMarketplaceProvider();
   const dataSelect = [{ label: compute_types.label, options: compute_types.options }];
 
   const getServiceCompute = (value: string) => {
@@ -94,6 +99,33 @@ const Deposit = ({
         </div>
       </div>
       <div className="deposit-wrapper full">
+
+        {customTitle && (
+          <div className="deposit-card--header">
+            <div className="deposit-card--header__title">
+              <IconInfoBlack />
+              <p>{customTitle}</p>
+            </div>
+            <div className="deposit-card--header__action">
+              {preview && (
+                <div style={{ marginRight: "0.5rem" }} className="deposit-card--header__action--button" onClick={() => setPreviewTemplateModal({ open: true, datasource: preview })}>
+                  <p>Preview</p>
+                </div>
+              )}
+              <div className="deposit-card--header__action--button" onClick={() => navigate("/marketplace/workflow")}>
+                <p>Go back</p>
+                <IconArrowLeft />
+              </div>
+            </div>
+          </div>
+        )}
+        {customNote && (
+          <div className="deposit-content">
+            <div className="deposit-card--content">
+              {customNote}
+            </div>
+          </div>
+        )}
         {listCardCharge?.length && isMarketPleaces ? <div className="deposit-card">
           <div className="deposit-card--header">
             <div className="deposit-card--header__title">
@@ -189,15 +221,12 @@ const Deposit = ({
           }*/}
           <Topup
             amount={totalPrice}
+            gateway="STRIPE"
             onFinish={() => {
               setIsDeposit?.(false);
               onHandleRent();
             }}
-            onFinishCrypto={() => {
-              if (onHandleRentCrypto) {
-                onHandleRentCrypto();
-              }
-            }}
+            onFinishCrypto={onHandleRentCrypto}
           />
         </div>
       </div>

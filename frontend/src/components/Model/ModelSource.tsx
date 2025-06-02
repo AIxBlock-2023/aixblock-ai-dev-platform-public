@@ -58,7 +58,7 @@ export default function ModelSource({project, onAdded, onClose, hasCheckpoint, d
     checkpoint_token: null,
   });
 
-  const [framework, setFramework] = React.useState<TFramework | undefined>(undefined);
+  const [framework, setFramework] = React.useState<TFramework | 'huggingface'>('huggingface');
   const [modelType, setModelType] = React.useState<TModelType | 'training'>('training');
   const [mlId, setMlId] = React.useState<number | 0>(0);
   const [availableOptions, setAvailableOptions] = React.useState<Option[]>([]);

@@ -874,7 +874,7 @@ const ML = (props: TMLProps) => {
             size="small"
             className="c-ml--action ml-marketplace"
             icon={<IconHome />}
-            onClick={() => navigate("/models-marketplace/" + projectID)}
+            onClick={() => navigate("/marketplace/models/" + projectID)}
           >
             Check out from ML Models Marketplace
           </Button>
@@ -1186,6 +1186,8 @@ const ML = (props: TMLProps) => {
           tabs={tabs}
           searchParams={searchParams}
           setSearchParams={setSearchParams}
+          showRoutingBtn={false}
+          showWorkFlowBtn={false}
         />
         : <span className="c-ml__last-text">No Result</span>}
       </div>

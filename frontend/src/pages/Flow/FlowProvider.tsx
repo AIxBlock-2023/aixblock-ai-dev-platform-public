@@ -18,6 +18,9 @@ import {confirmDialog} from "@/components/Dialog";
 import {useDeleteCompute} from "@/hooks/computes/useDeleteCompute";
 import useProjectPermission from "@/hooks/project/useProjectPermission";
 import {useAuth} from "@/providers/AuthProvider";
+import WorkflowEditor from "@/components/WorkflowEditor";
+import Modal from "@/components/Modal/Modal";
+import {TNavbarBreadcrumb} from "@/components/Navbar/Navbar";
 
 export type TPageFlowProvider = {
   project: TProjectModel | null;
@@ -57,6 +60,8 @@ export type TPageFlowProvider = {
     hasRentedModel: boolean,
   },
   permission: ReturnType<typeof useProjectPermission>,
+  showWorkflow: () => void,
+  sharedNavbarActions: TNavbarBreadcrumb[],
 }
 
 const FLOW_CONTEXT_DEFAULT: TPageFlowProvider = {
@@ -137,6 +142,8 @@ const FLOW_CONTEXT_DEFAULT: TPageFlowProvider = {
     replaceTaskHandler: false,
     unparkTask: false,
   },
+  showWorkflow: () => void 0,
+  sharedNavbarActions: [],
 }
 
 export const PageFlowContext = React.createContext<TPageFlowProvider>(FLOW_CONTEXT_DEFAULT);
@@ -155,6 +162,8 @@ function FlowProviderWithProject({id, children, computes, flowDiagram, setFlowDi
   const lastLocation = useRef<string>(location.pathname);
   const {user} = useAuth();
   const permission = useProjectPermission({project: detail, user});
+  const [isShowWorkflow, setShowWorkflow] = React.useState(false);
+  const [sharedNavbarActions] = React.useState<TNavbarBreadcrumb[]>([]);
 
   useBooleanLoader(!projectInitialized && loading, "Loading project...");
   useBooleanLoader(
@@ -271,7 +280,7 @@ function FlowProviderWithProject({id, children, computes, flowDiagram, setFlowDi
 
   const gotoComputeMarketplaceWithReturn = React.useCallback(() => {
     localStorage.setItem("computes-return", JSON.stringify({name: "Project: " + detail?.title, url: location.pathname}));
-    navigate("/computes/computes-marketplace");
+    navigate("/marketplace/computes");
   }, [detail?.title, location.pathname, navigate]);
 
   // Validate flow URL
@@ -338,6 +347,22 @@ function FlowProviderWithProject({id, children, computes, flowDiagram, setFlowDi
       layout.clearNavDataProject();
     }
   }, [detail, layout]);
+
+  // React.useEffect(() => {
+  //   if (!detail?.id || modelsList.length === 0) {
+  //     setSharedNavbarActions([]);
+  //   } else {
+  //     setSharedNavbarActions([
+  //       {
+  //         label: "Automation Workflow",
+  //         actionType: "success",
+  //         onClick: () => setShowWorkflow(true),
+  //       },
+  //     ]);
+  //   }
+  // }, [detail?.id, modelsList.length]);
+
+  const showWorkflow = React.useCallback(() => setShowWorkflow(true), []);
 
   if (loading || !projectInitialized) {
     return null;
@@ -423,6 +448,8 @@ function FlowProviderWithProject({id, children, computes, flowDiagram, setFlowDi
         hasAutoTrain,
       },
       permission,
+      showWorkflow,
+      sharedNavbarActions,
     }}>
       {children}
       {!!detail && (
@@ -435,6 +462,14 @@ function FlowProviderWithProject({id, children, computes, flowDiagram, setFlowDi
           hasAutoTrain={hasAutoTrain}
         />
       )}
+      <Modal
+        title="Workflow"
+        open={isShowWorkflow}
+        onClose={() => setShowWorkflow(false)}
+        className="workflow-modal"
+      >
+        <WorkflowEditor projectId={detail.id} netWorkId={-1} />
+      </Modal>
     </PageFlowContext.Provider>
   )
 }

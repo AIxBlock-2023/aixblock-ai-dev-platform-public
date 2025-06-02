@@ -48,7 +48,7 @@ import ReplaceUser, {TReplaceRoles} from "./ReplaceUser";
 import UserName from "@/components/UserName/UserName";
 import {useCentrifuge} from "@/providers/CentrifugoProvider";
 import {TUseProjectHook} from "@/hooks/project/useProjectHook";
-import {TPageFlowProvider} from "../../FlowProvider"
+import {TPageFlowProvider, useFlowProvider} from "../../FlowProvider"
 import {TApiCallResult} from "@/providers/ApiProvider";
 
 type TDataTasksProps = {
@@ -987,6 +987,7 @@ export default function Data({baseUrl, project, patchProject, noTraining, noDepl
   // useBooleanLoader(lockingTask, "Locking task...");
   // useBooleanLoader(loadingTask, "Getting task...");
   useBooleanLoader(processing, "Processing workflow...");
+  const {sharedNavbarActions} = useFlowProvider();
 
   const dataUrl = React.useMemo(() => {
     const q = new URLSearchParams();
@@ -1102,7 +1103,7 @@ export default function Data({baseUrl, project, patchProject, noTraining, noDepl
             project_id: project.id?.toString()
           }),
         });
-        
+
         const data = await response.promise;
         const jsonData = await data.json();
         setIsQC(jsonData["is_qc"] ?? undefined);
@@ -1111,10 +1112,10 @@ export default function Data({baseUrl, project, patchProject, noTraining, noDepl
         console.error("Error fetching user role:", error);
       }
     };
-  
+
     fetchData();
   }, [api, project.id]);
-  
+
   const actions: TNavbarBreadcrumb[] = React.useMemo(() => {
     const list: TNavbarBreadcrumb[] = [];
 
@@ -1277,13 +1278,13 @@ export default function Data({baseUrl, project, patchProject, noTraining, noDepl
 	}, [project, userLayout, navigate, taskID, queries, fallBack, actions, dataUrl]);
 
   React.useEffect(() => {
-    userLayout.setActions(actions);
+    userLayout.setActions([...sharedNavbarActions, ...actions]);
 
     return () => {
       userLayout.clearActions();
     };
-  }, [userLayout, actions]);
-	
+  }, [userLayout, actions, sharedNavbarActions]);
+
 	// const handleTaskSelect = React.useCallback(
   //   (t: TTaskModel) => {
   //     if (t) {
@@ -1399,8 +1400,8 @@ export default function Data({baseUrl, project, patchProject, noTraining, noDepl
     <div style={dataWrapperStyle}>
       <DataInternal
         project={project}
-        onTaskUpdated={(taskID, newTaskData?: TTaskModel) => {
-          if (window.location.search.includes("task=") && newTaskData) {
+        onTaskUpdated={(_, newTaskData?: TTaskModel) => {
+          if (newTaskData && taskID && taskID === newTaskData.id) {
             setTask(newTaskData);
           }
         }}

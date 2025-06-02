@@ -17,11 +17,15 @@ import {useNavigate, useParams} from "react-router-dom";
 import EmptyContent from "../../components/EmptyContent/EmptyContent";
 import Button from "../../components/Button/Button";
 import useUrlQuery from "../../hooks/useUrlQuery";
-import { useWeb3Auth } from "@web3auth/modal-react-hooks";
 import { toastError, toastSuccess } from "../../utils/toast";
-import solanaRPC, { ITransactionResponse } from "../../solanaRPC";
-import { IProvider } from "@web3auth/base";
-import { USDC } from "@/utils/solanaAddress";
+import { getTokenByChainId } from "@/utils/solanaAddress";
+import SolanaRpcParticle, { ITransactionResponse } from "@/solanaRPCParticle";
+import {
+  type SolanaChain,
+  useAccount,
+  usePublicClient,
+  useWallets,
+} from "@particle-network/connectkit";
 
 export type TComputeMarketplaceCartDiskSizes = {[k: string]: string};
 
@@ -59,7 +63,10 @@ export default function ComputesMarketplaceV2() {
   const {addPromise} = usePromiseLoader()
   const navigate = useNavigate();
   const [diskSizes, setDiskSizes] = React.useState<TComputeMarketplaceCartDiskSizes>({});
-  const { status, provider } = useWeb3Auth();
+  const { isConnected: connectedParticle, chainId, address } = useAccount();
+  const [primaryWallet] = useWallets();
+  const solanaWallet = primaryWallet?.getWalletClient<SolanaChain>();
+  const publicClient = usePublicClient<SolanaChain>();
 
   useEffect(() => {
     if (queries.has("tflops")) {
@@ -350,22 +357,21 @@ export default function ComputesMarketplaceV2() {
       }
     });
 
-    if (!provider || status !== "connected") {
+    if (!solanaWallet || !publicClient || !connectedParticle || !chainId || !address) {
       toastError("Wallet is not connected yet. Please connect your wallet.");
       navigate("/user/wallet");
       return;
     }
 
     try {
-      const rpc = new solanaRPC(provider as IProvider);
-      const address = await rpc.getAccounts();
+      const rpc = new SolanaRpcParticle(chainId);
 
       const totalPrice = cart.reduce((v, c) => v + c.price * c.quantity * c.hours, 0);
       if (totalPrice <= 0) {
         toastError("Amount must be greater than 0");
         return;
       }
-      const currentBalance = await rpc.getTokenBalance(address, USDC.address);
+      const currentBalance = await rpc.getTokenBalance(address, getTokenByChainId(chainId).USDC.address);
       if(parseFloat(currentBalance) < totalPrice) {
         toastError("Insufficient USDC balance");
         return;
@@ -397,7 +403,7 @@ export default function ComputesMarketplaceV2() {
       console.log("response", response);
 
       const data: ITransactionResponse = await response.json();
-      const sendTransaction = await rpc.signAndSendTransaction(data);
+      const sendTransaction = await rpc.signAndSendTransaction(data, solanaWallet);
       console.log("sendTransaction", sendTransaction);
       toastSuccess("Send transaction successfully");
 
@@ -475,7 +481,6 @@ export default function ComputesMarketplaceV2() {
   if (isDeposit) {
     return (
       <Deposit
-        totalHours={0}
         priceDetailGPU={0}
         isMarketPleaces={true}
         setIsDeposit={setIsDeposit}

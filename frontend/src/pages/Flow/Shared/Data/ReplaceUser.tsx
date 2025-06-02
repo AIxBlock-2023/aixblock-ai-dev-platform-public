@@ -76,12 +76,14 @@ export default function ReplaceUser({organization, onChange, registerProcessingS
         label="To be replaced"
         data={userOptions}
         onChange={e => setFrom(parseInt(e.value))}
+        limitHeight={true}
       />
       <Select
         disabled={loading || isProcessing}
         label="Replaced by"
         data={userOptions}
         onChange={e => setTo(parseInt(e.value))}
+        limitHeight={true}
       />
     </div>
   );

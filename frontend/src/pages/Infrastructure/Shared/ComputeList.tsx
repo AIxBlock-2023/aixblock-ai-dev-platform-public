@@ -9,10 +9,14 @@ import {useDeleteCompute} from "@/hooks/computes/useDeleteCompute";
 import {toastError, toastSuccess} from "@/utils/toast";
 import { useNotification } from "@/providers/NotificationProvider";
 import { useApi } from "@/providers/ApiProvider";
-import { useWeb3Auth } from "@web3auth/modal-react-hooks";
-import solanaRPC from "@/solanaRPC";
-import { IProvider } from "@web3auth/base";
 import { useNavigate } from "react-router-dom";
+import SolanaRpcParticle from "@/solanaRPCParticle";
+import {
+  type SolanaChain,
+  useAccount,
+  usePublicClient,
+  useWallets,
+} from "@particle-network/connectkit";
 
 export type TProps = {
   list: TComputeMarketplaceRentedCard[];
@@ -25,13 +29,16 @@ export default function ComputeList({list, refresh}: TProps) {
   const api = useApi();
   const navigate = useNavigate();
 
-  const { status: solanaStatus, provider } = useWeb3Auth();
+  const { isConnected: connectedParticle, chainId, address } = useAccount();
+  const [primaryWallet] = useWallets();
+  const solanaWallet = primaryWallet?.getWalletClient<SolanaChain>();
+  const publicClient = usePublicClient<SolanaChain>();
 
   const onDeleteComputeCrypto = async (historyId: number) => {
     confirmDialog({
-      message: "Are you sure you want to delete this compute?",
+      message: "Are you sure you want to delete this compute? You must confirm the transaction via Particle to receive the refund.",
       async onSubmit() {
-        if (!provider || solanaStatus !== "connected") {
+        if (!solanaWallet || !publicClient || !connectedParticle || !chainId || !address) {
           toastError(
             "Wallet is not connected yet. Please connect your wallet."
           );
@@ -39,8 +46,7 @@ export default function ComputeList({list, refresh}: TProps) {
           return;
         }
         try {
-          const rpc = new solanaRPC(provider as IProvider);
-          const address = await rpc.getAccounts();
+          const rpc = new SolanaRpcParticle(chainId);
 
           if (!address) {
             toastError("Invalid address. Please re-connect your wallet.");
@@ -54,13 +60,11 @@ export default function ComputeList({list, refresh}: TProps) {
             },
           });
           const r = await ar.promise;
-          console.log('response', r)
           if (!r.ok) {
             toastError("Send transaction error");
           }
           const data = await r.json();
-          const sendTransaction = await rpc.signAndSendTransaction(data);
-          console.log("sendTransaction", sendTransaction);
+          await rpc.signAndSendTransaction(data, solanaWallet);
           toastSuccess("Send transaction successfully");
           refresh();
         } catch (error) {
@@ -73,11 +77,11 @@ export default function ComputeList({list, refresh}: TProps) {
     });
   };
 
-  const onDeleteCompute = useCallback((id: number) => {
+  const onDeleteCompute = useCallback((id: number, infrastructure_id?: number | string | null) => {
     confirmDialog({
       message: "Are you sure you want to delete this compute?",
       onSubmit() {
-        deleteCompute.delete(id).promise
+        deleteCompute.delete(id, undefined, infrastructure_id).promise
           .then(r => {
             if (!r.ok) return;
             refresh();

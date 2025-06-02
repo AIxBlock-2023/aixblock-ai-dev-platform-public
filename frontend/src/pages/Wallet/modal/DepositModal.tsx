@@ -1,10 +1,10 @@
-import {useState, useEffect, useCallback} from "react";
+import { useState, useEffect, useCallback } from "react";
 // import Modal from "@/components/Modal/Modal";
 import DepositWithAXBModal from "./DepositWithAXBModal";
 import "./DepositAndWithdrawModal.scss";
 import DepositBuyAXBModal from "./DepositBuyAXBModal";
-import { useWeb3Auth } from "@web3auth/modal-react-hooks";
 import { toastError } from "@/utils/toast";
+import { useConnect } from "@particle-network/authkit";
 
 type DepositModalProps = {
   open: boolean;
@@ -16,15 +16,15 @@ type DepositModalProps = {
 const DepositModal = (props: DepositModalProps) => {
   const [openDepositWithAXBModal, setOpenDepositWithAXBModal] = useState(false);
   const [openDepositBuyAXBModal, setOpenDepositBuyAXBModal] = useState(false);
-  const { status } = useWeb3Auth();
+  const { connected: connectedParticle } = useConnect();
 
   const onOpenDepositWithAXBModal = useCallback(() => {
-    if (status === "connected") {
+    if (connectedParticle) {
       setOpenDepositWithAXBModal(true);
     } else {
       toastError("Wallet is not connected yet. Please connect your wallet.");
     }
-  }, [status]);
+  }, [connectedParticle]);
 
   // Khi props.open là true, tự động mở modal DepositWithAXBModal (crypto)
   useEffect(() => {
@@ -34,7 +34,7 @@ const DepositModal = (props: DepositModalProps) => {
       setOpenDepositWithAXBModal(false);
       setOpenDepositBuyAXBModal(false);
     }
-  }, [onOpenDepositWithAXBModal, props.open, status]);
+  }, [onOpenDepositWithAXBModal, props.open]);
 
   return (
     <>

@@ -144,12 +144,12 @@ export const SERVICES = [
 
 export const SIDEBAR_ITEM_LABELS = {
   // top sidebar
-  YOUR_PROJECTS: "Project list",
+  YOUR_PROJECTS: "AI Project list",
   COMPUTES: "Your computes list",
   COMPUTES_SUPPLIER: "Lease out computes",
   MODELS_SELLER: "Commercialize models",
   NOTEBOOK: "Notebook",
-  DASHBOARD: "Dashboard",
+  DASHBOARD: "Home",
   SELF_HOST: "Self-host",
 
   // bot sidebar
@@ -164,7 +164,9 @@ export const SIDEBAR_ITEM_LABELS = {
   ACCOUNT_REWARDS: "Rewards",
   DISCORD: "Contact for support",
   INFRASTRUCTURE: "My infrastructure",
-
+  MARKETPLACE: "Marketplace",
+  OPEN_SOURCE: "Open Source",
+  OPEN_DATASET: "Open Dataset",
   WORKFLOWS: "Automation Workflows",
   WORKFLOWS_FLOWS: "Flows",
   WORKFLOWS_RUNS: "Runs",
@@ -172,6 +174,7 @@ export const SIDEBAR_ITEM_LABELS = {
   WORKFLOWS_MCP: "MCP",
   WORKFLOWS_BLOCKS: "Blocks",
   WORKFLOWS_AI_PROVIDERS: "AI Providers",
+  TEMPLATE_MARKETPLACE: "Template Marketplace",
 };
 
 export const HOURS = [
@@ -239,10 +242,10 @@ export const DEPOSIT_STEP = [
 export const PRICE_FP = 3;
 
 export const VIDEO_URL = {
-  WATCH_DEMO: "https://youtu.be/2hSdSyndvu0",
+  WATCH_DEMO: "https://www.youtube.com/watch?v=-rghHTsL4LA",
   SETUP_COMPUTE: "https://www.youtube.com/watch?v=kWfoIjEEDRU",
   BUILD_AI: "https://www.youtube.com/watch?v=kWfoIjEEDRU&t=163s",
   COMMERCIALIZE: "https://www.youtube.com/watch?v=kWfoIjEEDRU&t=382s",
   RENT_OUT_COMPUTE: "https://www.youtube.com/watch?v=kWfoIjEEDRU&t=420s",
-  WALLET_SETUP: "https://youtu.be/_RvRDlC4ciY",
+  WALLET_SETUP: "https://youtu.be/7bJGr4ru7BY",
 }

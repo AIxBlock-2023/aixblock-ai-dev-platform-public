@@ -15,7 +15,7 @@ export type TProps = React.PropsWithChildren<Pick<TFlowLayoutProps, "onBack" | "
 export default function DeployLayout({children, onBack, onSkip, onNext, withoutSteps, bgColor}: TProps) {
   const navigate = useNavigate();
   const {pathname: url} = useLocation();
-  const {project, flowStatus, isMeetRequirements, setMeetRequirements, initialized, flowDiagram, permission} = useFlowProvider();
+  const {project, flowStatus, isMeetRequirements, setMeetRequirements, initialized, flowDiagram, permission, sharedNavbarActions} = useFlowProvider();
   const {setActions, clearActions, setCloseCallback, clearCloseCallback} = useUserLayout();
   useFlowDiagramUpdate();
 
@@ -71,6 +71,7 @@ export default function DeployLayout({children, onBack, onSkip, onNext, withoutS
     // Model marketplace
     if (isModelMarketplace) {
       setActions([
+        ...sharedNavbarActions,
         {label: "Back", actionType: "dark", onClick: () => navigate("/deploy/" + project?.id + "/setup-model")},
       ]);
     }
@@ -84,6 +85,7 @@ export default function DeployLayout({children, onBack, onSkip, onNext, withoutS
     // Existing project: Cancel to data
     else if (isCreating || (project && isStepPages)) {
       setActions([
+        ...sharedNavbarActions,
         ...(
           isCreating || !isMeetRequirements
             ? [{label: "Cancel", actionType: "dark", onClick: () => navigate("/projects")}]
@@ -96,7 +98,7 @@ export default function DeployLayout({children, onBack, onSkip, onNext, withoutS
     }
     else {
       setCloseCallback("/projects/");
-      const actions: TNavbarBreadcrumb[] = [];
+      const actions: TNavbarBreadcrumb[] = [...sharedNavbarActions];
 
       if (permission.configure) {
         const isSettings = urlParts.length > 3 && urlParts[3] === "settings";
@@ -113,7 +115,7 @@ export default function DeployLayout({children, onBack, onSkip, onNext, withoutS
       clearActions();
       clearCloseCallback();
     };
-  }, [clearActions, clearCloseCallback, isMeetRequirements, navigate, project, setActions, setCloseCallback, urlParts, permission]);
+  }, [clearActions, clearCloseCallback, isMeetRequirements, navigate, project, setActions, setCloseCallback, urlParts, permission, sharedNavbarActions]);
 
   useEffect(() => {
     if (!initialized) {

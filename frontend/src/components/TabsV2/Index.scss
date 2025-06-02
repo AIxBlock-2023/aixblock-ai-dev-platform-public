@@ -150,3 +150,26 @@
   align-items: center;
   justify-content: center;
 }
+
+.open-model-button-container {
+  display: flex;
+  gap: 3px;
+}
+
+.routing-button, .add-button {
+  padding-top: 15px;
+  padding-bottom: 15px;
+}
+
+.workflow-modal {
+  width: calc(100vw - 10%);
+  height: calc(100vh - 10%);
+  .c-modal__content, .c-modal__body {
+    height: 100%;
+    width: 100%;
+  }
+
+  .c-modal__content {
+    overflow-y: hidden;
+  }
+}

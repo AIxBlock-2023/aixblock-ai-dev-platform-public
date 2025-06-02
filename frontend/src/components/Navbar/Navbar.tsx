@@ -257,7 +257,7 @@ const MemoizedNavbar = (props: TProps) => {
         <div className="c-navbar__right">
           {!isLayoutEmpty && (
             <div className="c-navbar__actions">
-              {location.pathname === '/computes/computes-marketplace' ?
+              {location.pathname === '/marketplace/computes' ?
                 <div className="cart-block" onClick={() => {
                   setIsShowCart(!isShowCart)
                 }}>

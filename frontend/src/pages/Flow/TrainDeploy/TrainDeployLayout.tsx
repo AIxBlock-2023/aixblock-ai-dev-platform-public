@@ -16,7 +16,7 @@ export type TProps = React.PropsWithChildren<Pick<TFlowLayoutProps, "onBack" | "
 export default function TrainDeployLayout({children, onBack, onSkip, onNext, withoutSteps, bgColor}: TProps) {
   const navigate = useNavigate();
   const {pathname: url} = useLocation();
-  const {project, flowStatus, isMeetRequirements, setMeetRequirements, initialized, flowDiagram, setShowPipeline, permission} = useFlowProvider();
+  const {project, flowStatus, isMeetRequirements, setMeetRequirements, initialized, flowDiagram, setShowPipeline, permission, sharedNavbarActions} = useFlowProvider();
   const {setActions, clearActions, setCloseCallback, clearCloseCallback} = useUserLayout();
   useFlowDiagramUpdate();
 
@@ -60,24 +60,24 @@ export default function TrainDeployLayout({children, onBack, onSkip, onNext, wit
           icon: <IconCloudLight />,
           onClick: () => project ? navigate("/train-and-deploy/" + project?.id + "/data-preparation/cloud-storage") : undefined,
         },
-        {
-          label: "Crawler",
-          activeChecker: () => urlParts[4] === "crawler",
-          icon: <IconBoldGlobal width={22} height={22} />,
-          onClick: () => project ? navigate("/train-and-deploy/" + project?.id + "/data-preparation/crawler") : undefined,
-        },
-        {
-          label: "Data Hubs",
-          activeChecker: () => urlParts[4] === "data-hubs",
-          icon: <IconShare />,
-          onClick: () => project ? navigate("/train-and-deploy/" + project?.id + "/data-preparation/data-hubs") : undefined,
-        },
-        {
-          label: "Crowdsource",
-          activeChecker: () => urlParts[4] === "crowdsource",
-          icon: <IconAddFolder />,
-          onClick: () => project ? navigate("/train-and-deploy/" + project?.id + "/data-preparation/crowdsource") : undefined,
-        },
+        // {
+        //   label: "Crawler",
+        //   activeChecker: () => urlParts[4] === "crawler",
+        //   icon: <IconBoldGlobal width={22} height={22} />,
+        //   onClick: () => project ? navigate("/train-and-deploy/" + project?.id + "/data-preparation/crawler") : undefined,
+        // },
+        // {
+        //   label: "Data Hubs",
+        //   activeChecker: () => urlParts[4] === "data-hubs",
+        //   icon: <IconShare />,
+        //   onClick: () => project ? navigate("/train-and-deploy/" + project?.id + "/data-preparation/data-hubs") : undefined,
+        // },
+        // {
+        //   label: "Crowdsource",
+        //   activeChecker: () => urlParts[4] === "crowdsource",
+        //   icon: <IconAddFolder />,
+        //   onClick: () => project ? navigate("/train-and-deploy/" + project?.id + "/data-preparation/crowdsource") : undefined,
+        // },
       ];
     }
 
@@ -131,7 +131,7 @@ export default function TrainDeployLayout({children, onBack, onSkip, onNext, wit
     // While creating project or missing storage/compute/model: Cancel to dashboard
     // Existing project: Cancel to data
     else if (isCreating || (project && isStepPages)) {
-      const actions: TNavbarBreadcrumb[] = [];
+      const actions: TNavbarBreadcrumb[] = [...sharedNavbarActions];
 
       if (project?.data_pipeline === "on") {
         actions.push({label: "Go to Data", actionType: "primary", onClick: () => navigate("/train-and-deploy/" + project?.id + "/data")});
@@ -150,7 +150,7 @@ export default function TrainDeployLayout({children, onBack, onSkip, onNext, wit
         setCloseCallback("/projects");
       }
 
-      const actions: TNavbarBreadcrumb[] = [];
+      const actions: TNavbarBreadcrumb[] = [...sharedNavbarActions];
 
       if (permission.configure) {
         const isSettings = urlParts.length > 3 && urlParts[3] === "settings";
@@ -172,7 +172,7 @@ export default function TrainDeployLayout({children, onBack, onSkip, onNext, wit
         clearCloseCallback();
       }
     };
-  }, [clearActions, clearCloseCallback, isMeetRequirements, navigate, project, setActions, setCloseCallback, urlParts, permission]);
+  }, [clearActions, clearCloseCallback, isMeetRequirements, navigate, project, setActions, setCloseCallback, urlParts, permission, sharedNavbarActions]);
 
   useEffect(() => {
     if (!initialized) {

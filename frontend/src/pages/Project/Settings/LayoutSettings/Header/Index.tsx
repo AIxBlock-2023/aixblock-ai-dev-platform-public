@@ -20,6 +20,8 @@ const HeaderSettings = (props: TImportDataType) => {
         return true;
       case "models-marketplace":
         return true;
+      case "marketplace/models":
+          return true;
       default:
         break;
     }

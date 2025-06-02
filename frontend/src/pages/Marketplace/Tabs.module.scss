@@ -1,0 +1,92 @@
+.primaryTabs {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  height: 50px;
+}
+
+.primaryTabItem {
+  background: var(--Color-neutral-50, #F8F8FD);
+  border-left: 1px solid var(--main-Line, #DEDEEC);
+  border-right: 1px solid var(--main-Line, #DEDEEC);
+  border-bottom: 1px solid var(--main-Line, #DEDEEC);
+  padding: 16px;
+  text-align: center;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+
+  &:first-child {
+    border-left: none;
+  }
+
+  &:last-child {
+    border-right: none;
+  }
+
+  &Active {
+    color: var(--Color-purple-600, #7A55E8);
+    background: var(--main-bg, #FFF);
+    border-left-color: transparent;
+    border-right-color: transparent;
+    border-bottom-color: transparent;
+  }
+
+  &CornerRight {
+    border-bottom-right-radius: 6px;
+  }
+
+  &CornerLeft {
+    border-bottom-left-radius: 6px;
+  }
+}
+
+.secondaryTabs {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-sizing: border-box;
+  height: 64px;
+  background: #FFFFFF;
+  border-bottom: 1px solid #E9E9F2;
+}
+
+.secondaryTabItem {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  padding: 8px 12px;
+  height: 32px;
+  background: #FFFFFF;
+  border: 1px solid #DEDEEC;
+  box-shadow: 0 8px 16px rgba(134, 93, 255, 0.08);
+  border-radius: 24px;
+  flex: none;
+  order: 0;
+  flex-grow: 0;
+  font-size: 14px;
+  cursor: pointer;
+  user-select: none;
+  gap: 8px;
+
+  svg {
+    color: #DEDEEC;
+  }
+
+  &Active {
+    background: #EBF0FF;
+    border-color: #386AFF;
+    color: #386AFF;
+
+    svg {
+      color: #386AFF;
+    }
+  }
+
+  & + * {
+    margin-left: 16px;
+  }
+}

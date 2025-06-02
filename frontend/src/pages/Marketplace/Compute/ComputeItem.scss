@@ -1,0 +1,146 @@
+.p-computes-marketplace-v2-compute {
+  border: 1px solid #DEDEEC;
+  border-radius: 16px;
+  transition: linear background, box-shadow 250ms;
+
+  &__inner {
+    border-radius: 16px;
+    background-color: #F4F5F9;
+    font-size: 12px;
+    padding: 24px;
+    transition: linear background 250ms;
+  }
+
+  &:hover {
+    background-image: linear-gradient(to right, #5555FF, #F3A2CF);
+    border: none;
+    box-shadow: 0 12px 24px 0 rgba(37, 37, 37, 0.10);
+    padding: 3px;
+  }
+
+  &:hover &__inner {
+    background-color: white;
+    border-radius: 13px;
+    padding: 22px;
+  }
+
+  .badges {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+
+  .badge {
+    border-radius: 67px;
+    border: 1px solid #DEDEEC;
+    background: #FFF;
+    box-shadow: 0 1px 2px -1px rgba(17, 12, 34, 0.08);
+    font-size: 12px;
+    padding: 8px 12px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+
+    &--green {
+      background-color: #27BE69;
+      border: none;
+      color: white;
+    }
+
+    &--purple {
+      background-color: #9E7DFF;
+      border: none;
+      color: white;
+    }
+
+    &--black {
+      background-color: #40405B;
+      border: none;
+      color: white;
+    }
+  }
+
+  .columns {
+    display: grid;
+    grid-template-columns: 3fr repeat(2, minmax(0, 1.5fr)) 1.5fr;
+    gap: 24px;
+  }
+
+  .column {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+
+    &--gpu {
+      margin-right: 32px;
+
+      .split {
+        align-items: flex-end;
+        display: flex;
+        justify-content: space-between;
+        margin-top: 16px;
+      }
+
+      .tflops strong {
+        color: #5050FF;
+        font-size: 20px;
+        font-weight: 700;
+      }
+
+      .gpu-ram, .gpu-bw {
+        color: #5050FF;
+        font-weight: 700;
+      }
+
+      .cuda, .gpu-bw {
+        margin-top: 4px;
+      }
+    }
+
+    &--cpu {
+      .motherboard, .cpu {
+        font-weight: 700;
+      }
+
+      .cpu {
+        margin-top: 16px
+      }
+
+      .pcie, .cpu-ram {
+        margin-top: 8px;
+      }
+    }
+
+    &--network {
+      .upload, .download, .duration, .reliability {
+        margin-top: 12px;
+
+        svg {
+          transform: translateY(2px);
+        }
+      }
+    }
+
+    &--rent {
+      align-items: flex-end;
+      text-align: right;
+
+      .price {
+        strong {
+          color: #5050FF;
+          font-size: 16px;
+          font-weight: 700;
+        }
+      }
+
+      .btn, .price {
+        margin-top: 12px;
+      }
+
+      .btn {
+        border-radius: 12px;
+        max-width: 110px;
+      }
+    }
+  }
+}

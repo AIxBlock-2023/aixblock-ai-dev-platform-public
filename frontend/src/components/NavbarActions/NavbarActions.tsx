@@ -23,7 +23,7 @@ const MemoizedNavbarActions: React.FC<TActionsProps> = (props) => {
             key={"action-" + i}
           >
             <Button 
-              className={`c-navbar__icon ${b.class} ${b.actionType ? b.actionType : "default"}`} 
+              className={`c-navbar__icon ${b.class} ${b.actionType ? b.actionType : "default"}`}
               onClick={b.onClick}
               type="secondary"
               icon={b.icon}

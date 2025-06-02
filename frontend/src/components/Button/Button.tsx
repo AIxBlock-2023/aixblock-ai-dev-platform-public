@@ -15,6 +15,7 @@ export type TButtonProps = {
   onClick?: MouseEventHandler;
   isBlock?: boolean,
   hoverText?: string;
+  id?: string;
 };
 
 const Button: React.FC<TButtonProps> = ({

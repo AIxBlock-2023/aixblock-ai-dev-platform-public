@@ -15,7 +15,7 @@ export type TProps = React.PropsWithChildren<Pick<TFlowLayoutProps, "onBack" | "
 export default function LabelAndValidateDataLayout({children, onBack, onSkip, onNext, withoutSteps, bgColor}: TProps) {
   const navigate = useNavigate();
   const {pathname: url} = useLocation();
-  const {project, flowStatus, isMeetRequirements, setMeetRequirements, initialized, patchProject, flowDiagram, permission} = useFlowProvider();
+  const {project, flowStatus, isMeetRequirements, setMeetRequirements, initialized, patchProject, flowDiagram, permission, sharedNavbarActions} = useFlowProvider();
   const {setActions, clearActions, setCloseCallback, clearCloseCallback} = useUserLayout();
   const [showPipeline, setShowPipeline] = useState<boolean>(false);
   useFlowDiagramUpdate();
@@ -43,24 +43,24 @@ export default function LabelAndValidateDataLayout({children, onBack, onSkip, on
           icon: <IconCloudLight />,
           onClick: () => project ? navigate("/label-and-validate-data/" + project?.id + "/data-preparation/cloud-storage") : undefined,
         },
-        {
-          label: "Crawler",
-          activeChecker: () => urlParts[4] === "crawler",
-          icon: <IconBoldGlobal width={22} height={22} />,
-          onClick: () => project ? navigate("/label-and-validate-data/" + project?.id + "/data-preparation/crawler") : undefined,
-        },
-        {
-          label: "Data Hubs",
-          activeChecker: () => urlParts[4] === "data-hubs",
-          icon: <IconShare />,
-          onClick: () => project ? navigate("/label-and-validate-data/" + project?.id + "/data-preparation/data-hubs") : undefined,
-        },
-        {
-          label: "Crowdsource",
-          activeChecker: () => urlParts[4] === "crowdsource",
-          icon: <IconAddFolder />,
-          onClick: () => project ? navigate("/label-and-validate-data/" + project?.id + "/data-preparation/crowdsource") : undefined,
-        },
+        // {
+        //   label: "Crawler",
+        //   activeChecker: () => urlParts[4] === "crawler",
+        //   icon: <IconBoldGlobal width={22} height={22} />,
+        //   onClick: () => project ? navigate("/label-and-validate-data/" + project?.id + "/data-preparation/crawler") : undefined,
+        // },
+        // {
+        //   label: "Data Hubs",
+        //   activeChecker: () => urlParts[4] === "data-hubs",
+        //   icon: <IconShare />,
+        //   onClick: () => project ? navigate("/label-and-validate-data/" + project?.id + "/data-preparation/data-hubs") : undefined,
+        // },
+        // {
+        //   label: "Crowdsource",
+        //   activeChecker: () => urlParts[4] === "crowdsource",
+        //   icon: <IconAddFolder />,
+        //   onClick: () => project ? navigate("/label-and-validate-data/" + project?.id + "/data-preparation/crowdsource") : undefined,
+        // },
       ];
     }
 
@@ -99,6 +99,7 @@ export default function LabelAndValidateDataLayout({children, onBack, onSkip, on
     // Model marketplace
     if (isModelMarketplace) {
       setActions([
+          ...sharedNavbarActions,
         {label: "Back", actionType: "dark", onClick: () => navigate("/label-and-validate-data/" + project?.id + "/setup-model")},
       ]);
     }
@@ -112,6 +113,7 @@ export default function LabelAndValidateDataLayout({children, onBack, onSkip, on
     // Existing project: Cancel to data
     else if (isCreating || (project && isStepPages)) {
       setActions([
+        ...sharedNavbarActions,
         ...(
           isCreating || !isMeetRequirements
             ? [{label: "Cancel", actionType: "dark", onClick: () => navigate("/projects")}]
@@ -130,6 +132,7 @@ export default function LabelAndValidateDataLayout({children, onBack, onSkip, on
         const isSettings = urlParts.length > 3 && urlParts[3] === "settings";
 
         setActions([
+          ...sharedNavbarActions,
           {
             label: "Settings",
             actionType: isSettings ? "primary" : undefined,
@@ -145,7 +148,7 @@ export default function LabelAndValidateDataLayout({children, onBack, onSkip, on
         clearCloseCallback();
       }
     };
-  }, [clearActions, clearCloseCallback, isMeetRequirements, navigate, project, setActions, setCloseCallback, urlParts, permission]);
+  }, [clearActions, clearCloseCallback, isMeetRequirements, navigate, project, setActions, setCloseCallback, urlParts, permission, sharedNavbarActions]);
 
   useEffect(() => {
     if (!initialized) {

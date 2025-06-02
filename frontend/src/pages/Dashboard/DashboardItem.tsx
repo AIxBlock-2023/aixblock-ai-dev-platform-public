@@ -1,11 +1,12 @@
 import { useNavigate } from "react-router-dom";
 import styles from "./Dashboard.module.scss";
-import { useMemo, useState } from "react";
+import { ReactNode, useMemo, useState } from "react";
+import { reactNodeToText } from "@/utils/reactNodeToText";
 
 export type DashboardItem = {
   index: number,
-  title: string | JSX.Element,
-  subTitle: string,
+  title: ReactNode,
+  subTitle: ReactNode,
   icon?: JSX.Element,
   url?: string,
   count?: number,
@@ -19,7 +20,8 @@ type TDashboardItemProp = {
 
 const DashBoardItem = ({ data, toggleableDesc }: TDashboardItemProp) => {
   const navigate = useNavigate();
-  const toggleable = useMemo(() => toggleableDesc && data.subTitle.length > 60, [data.subTitle.length, toggleableDesc]);
+  const subTitleStr = useMemo(() => reactNodeToText(data.subTitle), [data.subTitle]);
+  const toggleable = useMemo(() => toggleableDesc && subTitleStr.length > 60, [subTitleStr.length, toggleableDesc]);
   const [expanded, setExpanded] = useState(false);
 
   const content = useMemo(() => {
@@ -29,7 +31,7 @@ const DashBoardItem = ({ data, toggleableDesc }: TDashboardItemProp) => {
 
     return (
       <h4 className={ styles.dashboardItemSubtitle }>
-        { expanded ? data.subTitle : data.subTitle.substring(0, 60) + "..." }
+        { expanded ? data.subTitle : subTitleStr.substring(0, 60) + "..." }
         &nbsp;
         <span
           className={styles.moreLess}
@@ -42,7 +44,7 @@ const DashBoardItem = ({ data, toggleableDesc }: TDashboardItemProp) => {
         </span>
       </h4>
     );
-  }, [data.subTitle, expanded, toggleable]);
+  }, [data.subTitle, expanded, subTitleStr, toggleable]);
 
   return (
     <div

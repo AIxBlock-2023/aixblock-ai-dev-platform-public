@@ -5,6 +5,7 @@ import SkeletonBox from "@/components/SkeletonBox/SkeletonBox";
 import { TComputeInstallStatus, TComputeMarketplaceRentedCard } from "@/hooks/computes/useRentedGpu";
 import { formatBytesToGB, formatFloat } from "@/utils/customFormat";
 import styles from "./ComputeItem.module.scss";
+import { openNewTab } from "@/utils/openNewTab";
 
 const DeleteIcon = () => (
   <svg width={35} height={34} viewBox="0 0 41 40" xmlns="http://www.w3.org/2000/svg" fill="none">
@@ -62,6 +63,9 @@ export type TProps = {
   onDeleteCompute?: (id: number, project_id?: number | null) => void,
   history_id: number
   model_name?: string | null;
+  payer_email?: string;
+  payer_full_name?: string;
+  deleted_at?: string | null;
 }
 
 export default function RentedComputeItem(props: TProps) {
@@ -81,92 +85,44 @@ export default function RentedComputeItem(props: TProps) {
     return props?.installStatus === "wait_crypto";
   }, [props?.installStatus]);
 
-  /*const status: {
+
+  const status: {
     color: string,
     text: string,
-    actions: React.ReactElement[],
   } | null | undefined = useMemo(() => {
-    /!*const deleteButton = (
-      <Button
-        className={styles.deleteBtn}
-        icon={<IconDelete />}
-        onClick={() => props.onDeleteCompute?.(props.compute_id)}
-      />
-    );*!/
 
-    const IP = <Button className={styles.ipBtn}>
-      {isInstalling || isWaitVerify || isWaitCrypto ? <SkeletonBox /> : <span
-        onClick={() => openNewTab(`${props.schema ? props.schema : "https"}://${props.ip}`)}
-        id={tooltipPrefix + "ip"}>
-        {props.ip ?? "?"}
-      </span>}
-    </Button>
-
-    return {
-        color: "blue",
-        text: "",
-        actions: [
-          <div className={styles.groupBtn}>
-            {/!*{deleteButton}*!/}
-            <Button
-              className={styles.completed}
-              onClick={() => void 0}
-            >Running</Button>
-          </div>,
-          IP
-        ],
-      };
-
-    /!*if (props?.installStatus === "installing") {
+    if (props?.deleted_at) {
       return {
-        color: "blue",
-        text: "",
-        actions: [
-          <div className={styles.groupBtn}>
-            {deleteButton}
-            <Button
-              className={styles.installing}
-              onClick={() => void 0}
-            >Installing</Button>
-          </div>,
-          IP
-        ],
+        color: styles.cpItemColumnStatusTextRed,
+        text: "Deleted",
+      };
+    } else if (props?.installStatus === "installing") {
+      return {
+        color: styles.cpItemColumnStatusTextBlue,
+        text: "Installing",
       };
     } else if (props?.installStatus === "wait_verify") {
       return {
-        color: "yellow",
+        color: styles.cpItemColumnStatusTextBlack,
         text: "Wait Verify",
-        actions: [
-          deleteButton,
-          IP
-        ],
       };
     } else if (props?.installStatus === "failed") {
       return {
-        color: "red",
+        color: styles.cpItemColumnStatusTextRed,
         text: "Failed",
-        actions: [
-          deleteButton,
-          IP
-        ],
       };
     } else if (props?.installStatus === "completed") {
       return {
-        color: "blue",
-        text: "",
-        actions: [
-          <div className={styles.groupBtn}>
-            {deleteButton}
-            <Button
-              className={styles.completed}
-              onClick={() => void 0}
-            >Running</Button>
-          </div>,
-          IP
-        ],
+        color: styles.cpItemColumnStatusTextBlue,
+        text: "Running",
       };
-    }*!/
-  }, [props, isInstalling, isWaitVerify || isWaitCrypto, tooltipPrefix]);*/
+    } else if (props?.installStatus === "wait_crypto") {
+      return {
+        color: styles.cpItemColumnStatusTextBlack,
+        text: "Wait Verify",
+      };
+    }
+  }, [props?.installStatus, props?.deleted_at]);
 
   return (
     <div className={styles.cpItem}>
@@ -198,9 +154,21 @@ export default function RentedComputeItem(props: TProps) {
           {isInstalling || isWaitVerify || isWaitCrypto ? <SkeletonBox /> : <span className={styles.cpItemBadgePurple} id={tooltipPrefix + "machine-type"}>
             {props.machine_type ?? "??????"}
           </span>}
-          <Tooltip place="top" positionStrategy="fixed" content="IP"
-            anchorSelect={"#" + tooltipPrefix + "ip"} />
-          {isInstalling || isWaitVerify || isWaitCrypto ? <SkeletonBox /> : <span className={styles.cpItemBadgeBlack}>Service: {props.service ?? "?"}</span>}
+          {props.ip &&
+            <>
+               {isInstalling || isWaitVerify || isWaitCrypto ? <SkeletonBox /> :
+               <span
+                className={styles.cpItemBadgeBlack + ' ' + styles.cpItemBadgeIP}
+                id={tooltipPrefix + "ip"}
+                onClick={() => openNewTab(`https://${props.ip}`)}
+              >
+                {props.ip ?? "?"}
+              </span>}
+              <Tooltip place="top" positionStrategy="fixed" content="IP"
+                anchorSelect={"#" + tooltipPrefix + "ip"} />
+            </>
+          }
+          {isInstalling || isWaitVerify || isWaitCrypto ? <SkeletonBox /> : <span className={styles.cpItemBadgeBlack}>Service: <span className={styles.cpItemBadgeService}>{props.service ?? "?"}</span></span>}
           {props.price &&
             <>
               {isInstalling || isWaitVerify || isWaitCrypto ? <SkeletonBox /> : <span className={styles.cpItemBadge} id={tooltipPrefix + "price"}>{props.price ?? "?"}</span>}
@@ -248,6 +216,12 @@ export default function RentedComputeItem(props: TProps) {
                   anchorSelect={"#" + tooltipPrefix + "gpu-bw"} />
               </div>}
             </div>
+
+            {status &&
+              <div className={styles.cpItemColumnStatus}>
+                  <div className={styles.cpItemColumnStatusText + ' ' + status.color}>{status.text}</div>
+              </div>
+            }
           </div>
 
           <div className={styles.cpItemColumnCpu}>
@@ -263,6 +237,15 @@ export default function RentedComputeItem(props: TProps) {
               &nbsp;&nbsp;&nbsp;&nbsp;
               <span>{props.eff_out_of_total_system_ram ?? "?"} GB</span>
             </div>}
+            {props.payer_email &&
+              <>
+                {
+                  isInstalling || isWaitVerify || isWaitCrypto ? <SkeletonBox /> : <div className={styles.cpItemColumnNetworkPayerEmail}>
+                    Payer email: <strong>{props.payer_email}</strong>
+                  </div>
+                }
+              </>
+            }
           </div>
           <div className={styles.cpItemColumnNetwork}>
             {isInstalling || isWaitVerify || isWaitCrypto ? <SkeletonBox style={{ marginBottom: "10px" }} /> : <div className={styles.cpItemColumnNetworkUpload} id={tooltipPrefix + "upload"}>
@@ -306,18 +289,16 @@ export default function RentedComputeItem(props: TProps) {
                 }
               </>
             }
-          </div>
-          {/*{status &&
-            <div className={styles.cpItemColumnStatus}>
-              <React.Fragment>
-                {status.actions.length > 0 && (
-                  <div className={styles.cpItemColumnStatusActions}>
-                    {status.actions}
+            {props.payer_full_name &&
+              <>
+                {
+                  isInstalling || isWaitVerify || isWaitCrypto ? <SkeletonBox /> : <div className={styles.cpItemColumnNetworkPayerName}>
+                    Payer name: <strong>{props.payer_full_name}</strong>
                   </div>
-                )}
-              </React.Fragment>
-            </div>
-          }*/}
+                }
+              </>
+            }
+          </div>
         </div>
         {props.model_name && (
           <div className={styles.modelName}>

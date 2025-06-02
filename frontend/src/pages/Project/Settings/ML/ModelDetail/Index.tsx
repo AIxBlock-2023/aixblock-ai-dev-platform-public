@@ -603,7 +603,7 @@ const ModelDetail = () => {
                 <li
                   className="p-model-detail__breadcrumb-item"
                   onClick={() =>
-                    navigate(`/models-marketplace/${item.author_id}`)
+                    navigate(`/marketplace/models/${item.author_id}`)
                   }
                 >
                   {user?.username}
@@ -671,7 +671,7 @@ const ModelDetail = () => {
           <Button
             className="p-model-detail__icon back"
             icon={<IconArrowRight width={16} height={16} />}
-            onClick={() => navigate("/models-marketplace/" + projectID)}
+            onClick={() => navigate("/marketplace/models/" + projectID)}
           >
             Back
           </Button>

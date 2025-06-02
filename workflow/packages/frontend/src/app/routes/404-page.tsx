@@ -1,5 +1,5 @@
 import { t } from 'i18next';
-import { LucideIcon, SearchX } from 'lucide-react';
+import { LucideIcon, AlertCircle } from 'lucide-react';
 import React from 'react';
 import { Link } from 'react-router-dom';
 
@@ -14,11 +14,11 @@ interface NotFoundPageProps {
 }
 
 const NotFoundPage: React.FC<NotFoundPageProps> = ({
-  title = 'Oops! Page Not Found',
-  description = "The page you're looking for isn't here. Want to try going back home?",
+  title = 'Page Not Found',
+  description = "The page you're looking for isn't here.",
   showHomeButton = true,
   buttonText = 'Go Home',
-  icon: Icon = SearchX,
+  icon: Icon = AlertCircle,
 }) => {
   return (
     <div className="mx-auto max-w-screen-xl px-4 py-8 lg:px-6 lg:py-16 bg-background">
@@ -31,7 +31,8 @@ const NotFoundPage: React.FC<NotFoundPageProps> = ({
         </p>
 
         <p className="mb-4 text-lg font-light text-foreground">
-          {t(description)}
+          {t(description) +
+            (showHomeButton ? ' Want to try going back home?' : '')}
         </p>
         {showHomeButton && (
           <Link to="/">

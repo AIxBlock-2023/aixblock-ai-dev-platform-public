@@ -5,15 +5,18 @@ import Modal from "@/components/Modal/Modal";
 import useOnClickOutside from "@/hooks/useOnClickOutside";
 import WithdrawSuccessModal from "./WithdrawSuccessModal";
 import "./WithdrawWithAXBModal.scss";
-import { useWeb3Auth } from "@web3auth/modal-react-hooks";
-import solanaRPC from "@/solanaRPC";
-import { IProvider } from "@web3auth/base";
-import { USDC } from "@/utils/solanaAddress";
+import { getTokenByChainId } from "@/utils/solanaAddress";
 import { toastError, toastSuccess } from "@/utils/toast";
 import { formatOnchainBalance } from "../../../utils/customFormat";
 import { isValidSolanaAddress } from "@/utils/validators";
 import { confirmDialog } from "@/components/Dialog";
-import SolanaRpc from "@/solanaRPC";
+import SolanaRpcParticle from "@/solanaRPCParticle";
+import {
+  type SolanaChain,
+  useAccount,
+  usePublicClient,
+  useWallets,
+} from "@particle-network/connectkit";
 
 type WithdrawWithAXBModalProps = {
   open: boolean;
@@ -29,28 +32,26 @@ const WithdrawWithAXBModal = (props: WithdrawWithAXBModalProps) => {
     solana: "0",
     usdc: "0",
   });
-  const { status, provider } = useWeb3Auth();
   const [withdrawWallet, setWithdrawWallet] = useState<string>("");
   const [isValidAddress, setIsValidAddress] = useState(true);
   const [amount, setAmount] = useState("");
   const [isValidAmount, setIsValidAmount] = useState(true);
+  const { isConnected: connectedParticle, chainId, address } = useAccount();
+  const [primaryWallet] = useWallets();
+  const solanaWallet = primaryWallet?.getWalletClient<SolanaChain>();
+  const publicClient = usePublicClient<SolanaChain>();
 
   useEffect(() => {
     const init = async () => {
       try {
-        if (!provider) {
-          setOnchainBalance({
-            solana: "0",
-            usdc: "0",
-          });
-          return;
-        }
-        if (status === "connected") {
-          const rpc = new solanaRPC(provider as IProvider);
-          const address = await rpc.getAccounts();
+        if (connectedParticle && address && chainId) {
+          const rpc = new SolanaRpcParticle(chainId);
           const [solana, usdc] = await Promise.all([
-            rpc.getBalance(),
-            rpc.getTokenBalance(address, USDC.address),
+            rpc.getBalance(address),
+            rpc.getTokenBalance(
+              address,
+              getTokenByChainId(chainId).USDC.address
+            ),
           ]);
           setOnchainBalance({
             solana: formatOnchainBalance(solana),
@@ -58,12 +59,12 @@ const WithdrawWithAXBModal = (props: WithdrawWithAXBModalProps) => {
           });
         }
       } catch (error) {
-        toastError("Get wallet address failed");
+        toastError("Get wallet balance failed");
       }
     };
 
     init();
-  }, [provider, status]);
+  }, [address, chainId, connectedParticle]);
 
   const WITHDRAW = [
     {
@@ -116,31 +117,30 @@ const WithdrawWithAXBModal = (props: WithdrawWithAXBModalProps) => {
       message: "Are you sure you want to withdraw?",
       async onSubmit() {
         try {
-          if (!provider || status !== "connected") {
-            // toastError(
-            //   "Wallet is not connected yet. Please connect your wallet."
-            // );
-            return;
-          }
-          const solanaRpc = new SolanaRpc(provider); // Assuming provider is passed as a prop
+          if (!publicClient || !solanaWallet || !chainId) return;
+
+          const rpc = new SolanaRpcParticle(chainId || 101); // Assuming provider is passed as a prop
           if (networkType === "solana") {
-            await solanaRpc.sendSolTransaction(
+            await rpc.sendSolTransaction(
               withdrawWallet,
-              parseFloat(amount)
+              parseFloat(amount),
+              solanaWallet, // Add solanaWallet parameter
+              publicClient
             );
-            toastSuccess("Withdraw successfully");
-            closeModal();
           } else if (networkType === "usdc") {
-            await solanaRpc.sendToken(
+            await rpc.sendToken(
               withdrawWallet,
-              USDC.address,
-              parseFloat(amount)
+              getTokenByChainId(chainId).USDC.address,
+              parseFloat(amount),
+              solanaWallet,
+              publicClient
             );
-            toastSuccess("Withdraw successfully");
-            closeModal();
           }
+          toastSuccess("Withdraw successfully");
+          closeModal();
         } catch (error) {
           toastError("Withdraw failed");
+          closeModal();
           console.log("withdraw error", error);
         }
       },
@@ -170,7 +170,8 @@ const WithdrawWithAXBModal = (props: WithdrawWithAXBModalProps) => {
         className="withdraw-axb"
       >
         <div className="withdraw-note">
-          Please ensure that you fill in a Solana wallet address for withdrawing these tokens.
+          Please ensure that you fill in a Solana wallet address for withdrawing
+          these tokens.
         </div>
 
         <div className="withdraw-axb-content">

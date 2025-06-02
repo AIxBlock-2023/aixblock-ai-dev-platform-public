@@ -149,8 +149,8 @@ export const formatBytesOrGB = (
   }
 };
 
-export const formatWalletAddress = (address: string): string => {
-  if (!address.length) {
+export const formatWalletAddress = (address: string | null | undefined): string => {
+  if (!address || !address.length) {
     return "Not connected";
   }
   return `${address.slice(0, 10)}...${address.slice(-10)}`;
@@ -162,5 +162,5 @@ export const formatOnchainBalance = (
   decimal: number = 9
 ): string => {
   const sol = Number(balance) / Math.pow(10, decimal);
-  return sol.toFixed(2).toString();
+  return sol.toFixed(4).toString();
 };

@@ -50,12 +50,13 @@ export default function useAdminOrdersHook(
           return;
         }
         const data = await r.json();
+        // const data = sampleOrders;
         const vr = validateOrdersResponse(data);
 
         if (vr.isValid) {
-          setList(data.results);
-          setTotal(data.count);
-          setLoadingError(null);
+        setList(data.results);
+        setTotal(data.count);
+        setLoadingError(null);
         } else {
           setLoadingError(
             "Invalid orders list received from the server. Please try again!"

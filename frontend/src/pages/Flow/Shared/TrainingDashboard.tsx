@@ -211,6 +211,8 @@ export default function TrainingDashboard(props: TTrainingDashboardProps) {
             searchParams={searchParams}
             setSearchParams={setSearchParams}
             project={project}
+            showRoutingBtn={false}
+            showWorkFlowBtn={false}
           />
           : <span className="c-ml__last-text">No Result</span>}
       </div>

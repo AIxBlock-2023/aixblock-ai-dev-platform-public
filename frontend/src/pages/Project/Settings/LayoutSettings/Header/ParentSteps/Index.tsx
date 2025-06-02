@@ -16,7 +16,7 @@ const MemoizedSteps = () => {
 
   const activeStep = () => {
     switch (true) {
-      case path1 === "create-project" || path2 === "models-marketplace":
+      case path1 === "create-project" || path2 === "marketplace/models":
         return "settings";
       default:
         return path2;

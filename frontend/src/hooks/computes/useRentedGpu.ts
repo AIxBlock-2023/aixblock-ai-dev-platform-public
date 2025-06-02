@@ -50,7 +50,6 @@ export type TComputeGPU = {
   status?: "created" | "completed" | "renting" | "pending" | "suspend" | "in_marketplace" | "underperformance" | "failed" | null;
   owner_id?: number | null;
   compute_marketplace: number;
-  infrastructure_id?: number | null;
 }
 
 type TComputeMarketplaceRentedCPU = {
@@ -102,6 +101,7 @@ export type TComputeMarketplaceRentedCard = {
   schema?: string | null;
   new_notifications_count: number;
   payment_method?: string | null;
+  is_from_master_node?: boolean
 };
 
 export type TRentedGpuResponse = {

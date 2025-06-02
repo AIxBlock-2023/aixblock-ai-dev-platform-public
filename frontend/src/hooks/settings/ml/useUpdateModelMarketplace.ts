@@ -5,6 +5,7 @@ export interface Gpus {
   compute_id: number;
   gpus_id?: string // if none using compute cpu
   machine_options?: string;
+  rental_hours?: number;
 }
 
 export type TMarketplaceBody = {

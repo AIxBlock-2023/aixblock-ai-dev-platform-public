@@ -199,7 +199,7 @@ const MLModelMarketplace = () => {
               key={`key-${item.id}`}
               item={item}
               onClick={() =>
-                navigate(`/models-marketplace/${projectId}/detail`, {
+                navigate(`/marketplace/models/${projectId}/detail`, {
                   state: {
                     item: item,
                   },
@@ -217,7 +217,7 @@ const MLModelMarketplace = () => {
               setPage(val);
               reFetch();
             }}
-            target={`models-marketplace/${projectId}`}
+            target={`marketplace/models/${projectId}`}
           />
         )}
       </div>

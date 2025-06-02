@@ -81,7 +81,7 @@ const Marketplace = () => {
             "Would you like to purchase additional computing resources?",
           submitText: "Go to marketplace",
           onSubmit: () =>
-            openNewTab(window.APP_SETTINGS.hostname + "computes-marketplace/"),
+            openNewTab(window.APP_SETTINGS.hostname + "marketplace/computes/"),
         });
 
         return;

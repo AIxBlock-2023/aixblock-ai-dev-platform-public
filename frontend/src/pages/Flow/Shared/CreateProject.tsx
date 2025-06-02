@@ -173,6 +173,7 @@ export default function CreateProject(props: TProps) {
                   ? validationErrors["label_config"][0]
                   : null
               }
+              limitHeight={true}
             />
           )}
           {isMCE && (

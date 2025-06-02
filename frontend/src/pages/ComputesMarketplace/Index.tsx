@@ -365,7 +365,7 @@ const Marketplace = () => {
         Time for a quick musical interlude! We're setting up Docker containers and environments on the computes just for you.<br /> This process typically takes about 1 minute per compute, although timing can vary based on the internet connection from the GPU provider. <br />We appreciate your patience!
       </Modal>
 
-    </div> : <Deposit totalHours={0} priceDetailGPU={0} isMarketPleaces={true} setIsDeposit={setIsDeposit} listCardCharge={selectedCard} onHandleRent={rentCompute} onHandleDeleteCard={handleDeleteCardInCart} balance={balance} />
+    </div> : <Deposit priceDetailGPU={0} isMarketPleaces={true} setIsDeposit={setIsDeposit} listCardCharge={selectedCard} onHandleRent={rentCompute} onHandleDeleteCard={handleDeleteCardInCart} balance={balance} />
   );
 };
 

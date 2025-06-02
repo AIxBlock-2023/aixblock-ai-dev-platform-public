@@ -1,5 +1,4 @@
 .deposit-wrapper {
-  
   background: rgba(255, 255, 255, 1);
   margin: 45px 24px 0;
   display: grid;
@@ -24,7 +23,7 @@
     border-radius: 12px;
     border: 1px solid rgba(234, 237, 240, 1);
     padding: 24px;
-    box-shadow: 0px 10px 20px 0px rgba(37, 37, 37, 0.10);
+    box-shadow: 0px 10px 20px 0px rgba(37, 37, 37, 0.1);
     box-sizing: border-box;
     max-width: 860px;
     &.height-custom {
@@ -79,7 +78,7 @@
       p {
         &.txt {
           color: #40405b;
-          color: #40405B;
+          color: #40405b;
           font-size: 14px;
           font-style: normal;
           font-weight: 600;
@@ -101,7 +100,7 @@
       align-items: center;
       p {
         &.txt {
-          color: #40405B;
+          color: #40405b;
           font-size: 14px;
           font-style: normal;
           font-weight: 400;
@@ -143,9 +142,9 @@
       align-items: center;
       .btn-small {
         border-radius: 8px;
-        background: #4949E8;
+        background: #4949e8;
         box-shadow: 0px 1px 2px 0px rgba(17, 12, 34, 0.08);
-        color: #F4F5F9;
+        color: #f4f5f9;
         font-size: 14px;
         font-style: normal;
         font-weight: 600;
@@ -165,7 +164,7 @@
     max-width: 860px;
     .input-card-custom {
       input {
-        padding:7px 20px 7px 12px
+        padding: 7px 20px 7px 12px;
       }
     }
     &--header {
@@ -179,15 +178,18 @@
       }
       &__action {
         display: flex;
-        align-items: center;
-        padding: 8px 12px;
-        justify-content: center;
-        gap: 8px;
-        border-radius: 8px;
-        border: 1px solid #dedeec;
-        background: #fff;
-        box-shadow: 0px 1px 2px -1px rgba(17, 12, 34, 0.08);
-        cursor: pointer;
+        &--button {
+          display: flex;
+          align-items: center;
+          padding: 8px 12px;
+          justify-content: center;
+          gap: 8px;
+          border-radius: 8px;
+          border: 1px solid #dedeec;
+          background: #fff;
+          box-shadow: 0px 1px 2px -1px rgba(17, 12, 34, 0.08);
+          cursor: pointer;
+        }
       }
     }
     &--content {
@@ -202,7 +204,7 @@
         opacity: 1;
       }
       svg {
-        display: none
+        display: none;
       }
     }
   }

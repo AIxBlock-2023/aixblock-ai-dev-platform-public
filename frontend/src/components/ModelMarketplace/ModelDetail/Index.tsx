@@ -1,32 +1,35 @@
-import React, {useCallback, useEffect, useMemo, useRef, useState} from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import IconArrowRight from "@/assets/icons/IconArrowRight";
-import {IconChecked, IconCirclePlus, IconCopyLink, IconHeart} from "@/assets/icons/Index";
+import { IconChecked, IconCirclePlus, IconCopyLink, IconHeart } from "@/assets/icons/Index";
 import Button from "../../Button/Button";
-import {confirmDialog, infoDialog} from "../../Dialog";
+import { confirmDialog, infoDialog } from "../../Dialog";
 import Modal from "../../Modal/Modal";
-import {Gpus, useUpdateModelMarketplace} from "@/hooks/settings/ml/useUpdateModelMarketplace";
-import {useBooleanLoader} from "@/providers/LoaderProvider";
+import { Gpus, useUpdateModelMarketplace } from "@/hooks/settings/ml/useUpdateModelMarketplace";
+import { useBooleanLoader } from "@/providers/LoaderProvider";
 import "./Index.scss";
-import Select, {DataSelect, SelectOption} from "../../Select/Select";
-import {useGetListMarketplaceGpus} from "@/hooks/settings/ml/useGetListMarketplaceGpus";
-import {useModelMarketplaceLike} from "@/hooks/settings/ml/useModelMarketplaceLike";
-import {useModelMarketplaceDownload} from "@/hooks/settings/ml/useModelMarketplaceDownload";
-import {useCopyToClipboard} from "@/hooks/useCopyToClipboard";
+import Select, { DataSelect, SelectOption } from "../../Select/Select";
+import { useGetListMarketplaceGpus } from "@/hooks/settings/ml/useGetListMarketplaceGpus";
+import { useModelMarketplaceLike } from "@/hooks/settings/ml/useModelMarketplaceLike";
+import { useModelMarketplaceDownload } from "@/hooks/settings/ml/useModelMarketplaceDownload";
+import { useCopyToClipboard } from "@/hooks/useCopyToClipboard";
 import useGetUser from "@/hooks/admin/user/useGetUser";
-import {TMarketplaceGpuModel} from "@/models/marketplaceGpu";
+import { TMarketplaceGpuModel } from "@/models/marketplaceGpu";
 import ModelPreview from "../ModelPreviewNew/Index";
 import LineChart from "../../Chart/LineChart";
-import {storeInputFields, removeStoreInputFields, IAddModelData} from "@/pages/Project/Settings/ML/ML";
-import {useApi} from "@/providers/ApiProvider";
-import {formatBytes} from "@/utils/customFormat";
+import { storeInputFields, removeStoreInputFields, IAddModelData } from "@/pages/Project/Settings/ML/ML";
+import { useApi } from "@/providers/ApiProvider";
+import { formatBytes } from "@/utils/customFormat";
 import InputBase from "../../InputBase/InputBase";
-import {TProjectModel} from "@/models/project";
-import {toastError} from "@/utils/toast";
-import {useLocation, useNavigate, useParams} from "react-router-dom";
+import { TProjectModel } from "@/models/project";
+import { toastError } from "@/utils/toast";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import useGetModelMarketplaceSell from "@/hooks/modelsSeller/useGetModelMarketplaceSell";
 import EmptyContent from "../../EmptyContent/EmptyContent";
 import CreateProjectSimple from "../../CreateProjectSimple/CreateProjectSimple";
-import {TModelTask} from "@/models/modelMarketplace";
+import { TModelTask } from "@/models/modelMarketplace";
+import { useWorkflows } from "@/providers/WorkflowsProvider";
+import LoadingPage from "@/components/EmptyContent/LoadingPage";
+import { extractErrorMessage } from "@/utils/error";
 
 export interface IModelDataWeight {
   value: string;
@@ -75,9 +78,10 @@ export type TProps = {
   onCompleted: () => void;
   item: any;
   needConfirmResetCompute?: boolean;
+  autoCreateProject?: boolean;
 }
 
-const Component = ({item, project, onBackClick, onCompleted, needConfirmResetCompute}: TProps) => {
+const Component = ({ item, project, onBackClick, onCompleted, needConfirmResetCompute, autoCreateProject }: TProps) => {
   const weightData = useMemo(() => {
     if (Array.isArray(item.weights) && item.weights.length > 0) {
       return item.weights;
@@ -88,7 +92,7 @@ const Component = ({item, project, onBackClick, onCompleted, needConfirmResetCom
 
   const weightOptions: DataSelect["options"] = useMemo(() => {
     if (weightData.length === 0) {
-      return [{label: "(no selectable weight)", value: ""}];
+      return [{ label: "(no selectable weight)", value: "" }];
     }
 
     return weightData.map((weight: IModelDataWeight) => ({
@@ -102,16 +106,16 @@ const Component = ({item, project, onBackClick, onCompleted, needConfirmResetCom
   const projectID = useMemo(() => project?.id ?? 0, [project?.id]);
   // const isDeploy = useMemo(() => project?.flow_type === "deploy", [project?.flow_type]);
   const [isOpenModalModel, setOpenModalModel] = useState<boolean>(false);
-  const {call} = useApi();
-  const {onUpdate, onInstall} = useUpdateModelMarketplace();
+  const { call } = useApi();
+  const { onUpdate, onInstall } = useUpdateModelMarketplace();
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const {gpusListModel, refresh: refreshGpus, loading: loadingGpus} = useGetListMarketplaceGpus(projectID.toString());
-  const {isLike, likeCount, likeModel} = useModelMarketplaceLike(item.id);
-  const {downloadModel} = useModelMarketplaceDownload(item.id);
+  const { gpusListModel, refresh: refreshGpus, loading: loadingGpus } = useGetListMarketplaceGpus(projectID.toString());
+  const { isLike, likeCount, likeModel } = useModelMarketplaceLike(item.id);
+  const { downloadModel } = useModelMarketplaceDownload(item.id);
   const [selectedGpus, setSelectedGPUs] = useState<Gpus[]>([]);
   const [selectedCpus, setSelectedCpus] = useState<Gpus[] | null>(null);
   const [copiedText, copy] = useCopyToClipboard();
-  const {user} = useGetUser({id: item.owner_id?.toString()});
+  const { user } = useGetUser({ id: item.owner_id?.toString() });
   // const [paramsValue, setParamsValue] = useState<number | undefined>();
   const [modelData, setModelData] = useState<IModelData>({} as IModelData);
   const [disableSubmit, setDisableSubmit] = useState<boolean>(true);
@@ -154,9 +158,10 @@ const Component = ({item, project, onBackClick, onCompleted, needConfirmResetCom
   const navigate = useNavigate();
   const location = useLocation();
   const actionRentRef = useRef(location.search.includes("action=rent"));
-
+  const { callbackUrl, navigateToCallback } = useWorkflows();
+  const [navigating, setNavigating] = useState<boolean>(false);
   const downloadData = useMemo(() => {
-    const data = Array.from({length: 12}, (_, i) => ({
+    const data = Array.from({ length: 12 }, (_, i) => ({
       x: i,
       y: 0,
     }));
@@ -175,21 +180,26 @@ const Component = ({item, project, onBackClick, onCompleted, needConfirmResetCom
 
   const selectableGpus = useMemo(() => {
     const results: DataSelect[] = gpusListModel.map((j) => {
+      if (Number(j.rental_hours) < Number(modelData.rent_time)) return {
+        label: '',
+        options: []
+      }
       const gpus =
         j.compute_gpus.length > 0
           ? j.compute_gpus.map(
             (c: TMarketplaceGpuModel) =>
-              ({
-                label: c.gpu_name,
-                value: c.id.toString(),
-                disabled: j.is_available === false,
-                data: {
-                  compute_id: j.compute_id,
-                  compute_name: j.compute_name,
-                  gpu: c,
-                  isAvailable: j.is_available,
-                },
-              } as SelectOption)
+            ({
+              label: c.gpu_name,
+              value: c.id.toString(),
+              disabled: j.is_available === false,
+              data: {
+                compute_id: j.compute_id,
+                compute_name: j.compute_name,
+                gpu: c,
+                isAvailable: j.is_available,
+                rental_hours: j.rental_hours,
+              },
+            } as SelectOption)
           )
           : [
             {
@@ -201,6 +211,7 @@ const Component = ({item, project, onBackClick, onCompleted, needConfirmResetCom
                 compute_name: j.compute_name,
                 cpu: j.compute_cpu,
                 isAvailable: j.is_available,
+                rental_hours: j.rental_hours,
               },
             } as SelectOption,
           ];
@@ -208,8 +219,18 @@ const Component = ({item, project, onBackClick, onCompleted, needConfirmResetCom
         label: j.compute_name,
         options: gpus,
       };
-    });
+    }).filter(f => f.options.length);
     return results;
+  }, [gpusListModel, modelData.rent_time]);
+
+  const minRentalHoursModel = useMemo(() => {
+    let minRentalHours = Infinity;
+    gpusListModel.forEach((j) => {
+      if (j.rental_hours < minRentalHours) {
+        minRentalHours = j.rental_hours;
+      }
+    });
+    return minRentalHours;
   }, [gpusListModel]);
 
   const onFieldChange = useCallback(
@@ -228,13 +249,32 @@ const Component = ({item, project, onBackClick, onCompleted, needConfirmResetCom
     [addModelData, projectID]
   );
 
+  useEffect(() => {
+    const newSelectedGpus = [];
+    for (const selectedGpu of selectedGpus) {
+      if (Number(selectedGpu.rental_hours) >= Number(modelData.rent_time)) {
+        newSelectedGpus.push(selectedGpu);
+      }
+    }
+    setSelectedGPUs(newSelectedGpus);
+
+    const newComputes = [];
+    for (const compute of addModelData.computes) {
+      if (Number(compute.data.rental_hours) >= Number(modelData.rent_time)) {
+        newComputes.push(compute);
+      }
+    }
+    onFieldChange("computes", newComputes);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [modelData.rent_time]);
+
   const getDataGpus = useCallback((data: Gpus[]) => {
     const cpus = data
       .filter((item) => item.gpus_id === "compute_gpus")
-      .map(({compute_id}) => ({compute_id}));
+      .map(({ compute_id }) => ({ compute_id }));
 
     const mergedArray = data
-      .filter((item) => item.gpus_id !== "compute_gpus")
+      .filter((item) => item.gpus_id !== "compute_gpus" && Number(item.rental_hours) >= Number(modelData.rent_time))
       .reduce((acc, obj2) => {
         const existingObjIndex = acc.findIndex(
           (obj1) => obj1.compute_id === obj2.compute_id
@@ -256,7 +296,7 @@ const Component = ({item, project, onBackClick, onCompleted, needConfirmResetCom
     setSelectedCpus(cpus);
     setSelectedGPUs(mergedArray);
     setChangedTime(new Date())
-  }, [setSelectedCpus, setSelectedGPUs]);
+  }, [setSelectedCpus, setSelectedGPUs, modelData.rent_time]);
 
   const onSelectGpus = useCallback((result: Gpus[]) => {
     setOldData(result);
@@ -293,13 +333,28 @@ const Component = ({item, project, onBackClick, onCompleted, needConfirmResetCom
     confirmSelectComputes();
   }, [confirmSelectComputes, oldData]);
 
+  const onSuccess = useCallback((fn: Function | undefined) => {
+    if (callbackUrl || fn) {
+      setNavigating(true);
+      setTimeout(() => {
+        setNavigating(false);
+        setTimeout(() => {
+          if (callbackUrl)
+            navigateToCallback();
+          else
+            fn?.()
+        }, 500)
+      }, 2000)
+    }
+  }, [callbackUrl, navigateToCallback, setNavigating]);
+
   const handleOpenModelRentModal = useCallback(() => {
     // isInit.current = false;
     setOpenModalModel(true)
     isFetchComputes.current = false;
   }, []);
 
-  const buyModel = useCallback(async (pid: number, onSuccess?: Function) => {
+  const buyModel = useCallback(async (pid: number, onNavigate?: Function) => {
     const rentTime = parseInt(modelData.rent_time);
 
     if (!rentTime || !(rentTime > 0)) {
@@ -342,7 +397,7 @@ const Component = ({item, project, onBackClick, onCompleted, needConfirmResetCom
           tflops: modelData?.calculate_compute_gpu?.tflops,
           total_cost: modelData?.calculate_compute_gpu?.total_cost,
           total_power_consumption:
-          modelData?.calculate_compute_gpu?.total_power_consumption,
+            modelData?.calculate_compute_gpu?.total_power_consumption,
         },
         estimate_time: modelData?.estimate_time,
         estimate_cost: modelData?.estimate_cost,
@@ -374,7 +429,7 @@ const Component = ({item, project, onBackClick, onCompleted, needConfirmResetCom
         }
 
         handleOpenModelRentModal();
-        infoDialog({message: errorMessage});
+        infoDialog({ message: errorMessage });
         setInstalling(false);
         return;
       }
@@ -383,14 +438,14 @@ const Component = ({item, project, onBackClick, onCompleted, needConfirmResetCom
         removeStoreInputFields(projectID);
         setSelectedGPUs([]);
         setSelectedCpus([]);
-        onSuccess?.();
+        onSuccess(onNavigate)
         onCompleted()
       });
     } catch (error) {
       handleOpenModelRentModal();
 
       if (error instanceof Error) {
-        infoDialog({message: error.message});
+        infoDialog({ message: error.message });
       } else {
         infoDialog({
           message: "An error occurred while renting model. Please try again!",
@@ -401,9 +456,9 @@ const Component = ({item, project, onBackClick, onCompleted, needConfirmResetCom
     }
 
     setInstalling(false);
-  }, [modelData.rent_time, modelData?.token_length, modelData?.accuracy, modelData?.precision, modelData?.sampling_frequency, modelData?.mono, modelData?.fps, modelData?.resolution, modelData.image_width, modelData?.image_height, modelData?.framework, modelData?.modeltype, modelData?.project?.epochs, modelData?.project?.batch_size, modelData?.project?.batch_size_per_epochs, modelData?.calculate_compute_gpu?.paramasters, modelData?.calculate_compute_gpu?.mac, modelData?.calculate_compute_gpu?.gpu_memory, modelData?.calculate_compute_gpu?.tflops, modelData?.calculate_compute_gpu?.total_cost, modelData?.calculate_compute_gpu?.total_power_consumption, modelData?.estimate_time, modelData?.estimate_cost, modelData?.rent_cost, addModelData.name, addModelData?.weight, item?.author_id, item.id, projectID, selectedGpus, selectedCpus, onUpdate, downloadModel, handleOpenModelRentModal, onCompleted]);
+  }, [modelData.rent_time, modelData?.token_length, modelData?.accuracy, modelData?.precision, modelData?.sampling_frequency, modelData?.mono, modelData?.fps, modelData?.resolution, modelData.image_width, modelData?.image_height, modelData?.framework, modelData?.modeltype, modelData?.project?.epochs, modelData?.project?.batch_size, modelData?.project?.batch_size_per_epochs, modelData?.calculate_compute_gpu?.paramasters, modelData?.calculate_compute_gpu?.mac, modelData?.calculate_compute_gpu?.gpu_memory, modelData?.calculate_compute_gpu?.tflops, modelData?.calculate_compute_gpu?.total_cost, modelData?.calculate_compute_gpu?.total_power_consumption, modelData?.estimate_time, modelData?.estimate_cost, modelData?.rent_cost, addModelData.name, addModelData?.weight, item?.author_id, item.id, projectID, selectedGpus, selectedCpus, onUpdate, downloadModel, handleOpenModelRentModal, onCompleted, onSuccess]);
 
-  const installModel = useCallback(async (pid: number, onSuccess?: Function) => {
+  const installModel = useCallback(async (pid: number, onNavigate?: Function) => {
     setInstalling(true);
     setOpenModalModel(false);
 
@@ -415,7 +470,7 @@ const Component = ({item, project, onBackClick, onCompleted, needConfirmResetCom
         gpus: selectedGpus,
       };
 
-      const payload = selectedCpus?.length ? {...payloadBase, cpus: selectedCpus} : payloadBase;
+      const payload = selectedCpus?.length ? { ...payloadBase, cpus: selectedCpus } : payloadBase;
 
       const ar = onInstall(payload, item.id);
       const res = await ar.promise;
@@ -431,7 +486,7 @@ const Component = ({item, project, onBackClick, onCompleted, needConfirmResetCom
         }
 
         handleOpenModelRentModal();
-        infoDialog({message: errorMessage});
+        infoDialog({ message: errorMessage });
         setInstalling(false);
         return;
       }
@@ -440,14 +495,14 @@ const Component = ({item, project, onBackClick, onCompleted, needConfirmResetCom
         removeStoreInputFields(projectID);
         setSelectedGPUs([]);
         setSelectedCpus([]);
-        onSuccess?.();
+        onSuccess(onNavigate)
         onCompleted();
       });
     } catch (error) {
       handleOpenModelRentModal();
 
       if (error instanceof Error) {
-        infoDialog({message: error.message});
+        infoDialog({ message: error.message });
       } else {
         infoDialog({
           message: "An error occurred while renting model. Please try again!",
@@ -456,7 +511,7 @@ const Component = ({item, project, onBackClick, onCompleted, needConfirmResetCom
     }
 
     setInstalling(false);
-  }, [downloadModel, handleOpenModelRentModal, item?.author_id, item.id, onCompleted, onInstall, projectID, selectedCpus, selectedGpus]);
+  }, [downloadModel, handleOpenModelRentModal, item?.author_id, item.id, onCompleted, onInstall, projectID, selectedCpus, selectedGpus, onSuccess]);
 
   // const handleParamsChange = useCallback((v: number) => {
   //   setParamsValue(v);
@@ -530,7 +585,7 @@ const Component = ({item, project, onBackClick, onCompleted, needConfirmResetCom
   const [, setLoading] = React.useState(true);
   const [previewUrl, setPreviewUrl] = React.useState<string | null>(null);
   const [, setError] = React.useState<string | null>(null);
-// Check demo and stats
+  // Check demo and stats
   useEffect(() => {
     const backendURL = "https://127.0.0.1:9090";
     const projectID = 1;
@@ -538,7 +593,7 @@ const Component = ({item, project, onBackClick, onCompleted, needConfirmResetCom
 
     const requestOptions = {
       method: "POST",
-      headers: {"Content-Type": "application/json"},
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         project: projectID.toString(),
       }),
@@ -582,7 +637,7 @@ const Component = ({item, project, onBackClick, onCompleted, needConfirmResetCom
           project_id: projectID.toString(),
         });
         const ar = call("downloadModelData", {
-          params: {pk: item.id},
+          params: { pk: item.id },
           query: queryParams,
         });
         const response = await ar.promise;
@@ -606,7 +661,7 @@ const Component = ({item, project, onBackClick, onCompleted, needConfirmResetCom
   useEffect(() => {
     setInstallable(false);
     setCheckingAvailability(true);
-    const ar = call("modelMarketplaceAivailable", {params: {id: item.id}});
+    const ar = call("modelMarketplaceAivailable", { params: { id: item.id } });
 
     ar.promise
       .then(r => r.json())
@@ -634,14 +689,61 @@ const Component = ({item, project, onBackClick, onCompleted, needConfirmResetCom
     }
   }, [call, item]);
 
-  const onSubmit = useCallback(() => {
-    if (projectID) {
-      installable ? installModel(projectID) : buyModel(projectID);
-      return;
-    }
+  const createProject = async () => {
+      const now = new Date();
+      const pad = (n: number) => n.toString().padStart(2, '0');
+      const title = `Project ${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())} ${pad(
+                now.getHours(),
+            )}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+      const projectBody = {
+          title,
+          color: '#a2a2a2',
+          label_config: '<View>\n  <Header value="Please read the text" />\n  </View>\n\n\n',
+          label_config_title: '',
+          annotation_template: null,
+          template_id: 24,
+          type: {},
+          epochs: 1,
+          batch_size: 1,
+          image_width: 64,
+          image_height: 64,
+          flow_type: modelData.modeltype === 'training' ? 'fine-tune-and-deploy' : 'deploy',
+      };
+      
+      const ar = call('createProjects', {
+          body: projectBody,
+      });
+  
+      try {
+        const res = await ar.promise;
 
-    setShowCreateProject(true);
-  }, [buyModel, installModel, installable, projectID]);
+        if (res.ok) {
+          const project = await res.json();
+          return project;
+        }
+      } catch (e) {
+        toastError(extractErrorMessage(e));
+      }
+  };
+
+  const onSubmit = async () => {
+    if (autoCreateProject) {
+      const project = await createProject();
+      if (project) {
+        const run = installable ? installModel : buyModel;
+        await run(project.id);
+        // goToProject(project);
+        return;
+      }
+    } else {
+      if (projectID) {
+        installable ? installModel(projectID) : buyModel(projectID);
+        return;
+      }
+
+      setShowCreateProject(true);
+    }
+  };
 
   useEffect(() => {
     if (!actionRentRef.current) {
@@ -650,7 +752,22 @@ const Component = ({item, project, onBackClick, onCompleted, needConfirmResetCom
 
     handleOpenModelRentModal()
   }, [handleOpenModelRentModal]);
-
+  const goToProject = (project: TProjectModel) => {
+    switch (project.flow_type) {
+      case "deploy":
+        navigate(`/${project.flow_type}/${project.id}/demo-and-deploy`);
+        break;
+      case "label-and-validate-data":
+        navigate(`/${project.flow_type}/${project.id}/setup-infrastructure/storage`);
+        break;
+      case "train-and-deploy":
+        navigate(`/${project.flow_type}/${project.id}/setup-infrastructure/storage`);
+        break;
+      case "fine-tune-and-deploy":
+        navigate(`/${project.flow_type}/${project.id}/setup-infrastructure/storage`);
+        break;
+    }
+  };
   const isSupportDDP = useMemo(() => {
     try {
       const cfg = JSON.parse(item.config ?? "{}");
@@ -686,14 +803,14 @@ const Component = ({item, project, onBackClick, onCompleted, needConfirmResetCom
                 );
               }}
             >
-              {copiedText ? <IconChecked color="#27BE69"/> : <IconCopyLink/>}
+              {copiedText ? <IconChecked color="#27BE69" /> : <IconCopyLink />}
             </button>
             <div className="p-model-detail__like-box">
               <div
                 className="p-model-detail__like-box-left"
                 onClick={likeModel}
               >
-                <IconHeart isLike={isLike}/>
+                <IconHeart isLike={isLike} />
                 {isLike ? "Unlike" : "Like"}
               </div>
               <div className="p-model-detail__like-box-right">{likeCount}</div>
@@ -712,7 +829,7 @@ const Component = ({item, project, onBackClick, onCompleted, needConfirmResetCom
         <div className="p-model-detail__header-right">
           {weightData.length > 0 && (
             <Select
-              data={[{options: weightOptions}]}
+              data={[{ options: weightOptions }]}
               defaultValue={weightOptions[0]}
               onChange={o => onFieldChange("weight", o.data)}
               className="p-model-detail__weight-select"
@@ -723,7 +840,7 @@ const Component = ({item, project, onBackClick, onCompleted, needConfirmResetCom
               ? (
                 <Button
                   className="p-model-detail__icon buy"
-                  icon={<IconCirclePlus/>}
+                  icon={<IconCirclePlus />}
                   onClick={() => handleOpenModelRentModal()}
                   disabled={checkingAvailability}
                 >
@@ -732,7 +849,7 @@ const Component = ({item, project, onBackClick, onCompleted, needConfirmResetCom
               ) : (
                 <Button
                   className="p-model-detail__icon buy"
-                  icon={<IconCirclePlus/>}
+                  icon={<IconCirclePlus />}
                   onClick={() => handleOpenModelRentModal()}
                   disabled={checkingAvailability}
                 >
@@ -742,7 +859,7 @@ const Component = ({item, project, onBackClick, onCompleted, needConfirmResetCom
           }
           <Button
             className="p-model-detail__icon back"
-            icon={<IconArrowRight width={16} height={16} style={{transform: "rotateZ(180deg)"}}/>}
+            icon={<IconArrowRight width={16} height={16} style={{ transform: "rotateZ(180deg)" }} />}
             iconPosition="left"
             onClick={onBackClick}
           >
@@ -761,11 +878,11 @@ const Component = ({item, project, onBackClick, onCompleted, needConfirmResetCom
           </div>
           <div
             className="p-model-detail__content-desc"
-            dangerouslySetInnerHTML={{__html: item?.model_desc}}
+            dangerouslySetInnerHTML={{ __html: item?.model_desc }}
           />
           {item.file && (
             <div className="p-model-detail__demo-img">
-              <img src={item.file} alt="demo_img"/>
+              <img src={item.file} alt="demo_img" />
             </div>
           )}
         </div>
@@ -785,7 +902,7 @@ const Component = ({item, project, onBackClick, onCompleted, needConfirmResetCom
           </div>
           <div
             className="p-model-detail__content-right__row"
-            style={{justifyContent: "flex-start"}}
+            style={{ justifyContent: "flex-start" }}
           >
             <div className="p-model-detail__params-tag">
               <span className="first">Model size</span>
@@ -802,7 +919,7 @@ const Component = ({item, project, onBackClick, onCompleted, needConfirmResetCom
                 title="Model demo"
                 allow="camera;microphone"
                 src={previewUrl}
-                style={{border: 0}}
+                style={{ border: 0 }}
                 onLoad={(ev) => {
                   if (!ev.currentTarget.contentWindow) {
                     return;
@@ -869,6 +986,7 @@ const Component = ({item, project, onBackClick, onCompleted, needConfirmResetCom
           isFetchComputes={isFetchComputes}
           modelPreviewType="RENT-MODEL"
           installable={installable}
+          minRentalHoursModel={minRentalHoursModel}
         >
           <div className="c-model-preview__input-column">
             <div style={{
@@ -886,7 +1004,7 @@ const Component = ({item, project, onBackClick, onCompleted, needConfirmResetCom
               }}>
                 <span
                   onClick={() => {
-                    localStorage.setItem("computes-return", JSON.stringify({name: "Model: " + item.name, url: location.pathname + "?action=rent"}));
+                    localStorage.setItem("computes-return", JSON.stringify({ name: "Model: " + item.name, url: location.pathname + "?action=rent" }));
                     navigate("/infrastructure/setup-gpu/self-host");
                   }}
                   style={{
@@ -900,8 +1018,8 @@ const Component = ({item, project, onBackClick, onCompleted, needConfirmResetCom
                 </span>
                 <span
                   onClick={() => {
-                    localStorage.setItem("computes-return", JSON.stringify({name: "Model: " + item.name, url: location.pathname + "?action=rent"}));
-                    navigate("/computes/computes-marketplace");
+                    localStorage.setItem("computes-return", JSON.stringify({ name: "Model: " + item.name, url: location.pathname + "?action=rent" }));
+                    navigate("/marketplace/computes");
                   }}
                   style={{
                     cursor: "pointer",
@@ -940,11 +1058,12 @@ const Component = ({item, project, onBackClick, onCompleted, needConfirmResetCom
                     .map((o) => ({
                       compute_id: o.data.compute_id,
                       gpus_id: o.value,
-                      machine_options: o.data.gpu?.machine_options
+                      machine_options: o.data.gpu?.machine_options,
+                      rental_hours: o.data.rental_hours,
                     }))
                 )
                 isFetchComputes.current = true;
-                storeInputFields({projectID, computes: opts})
+                storeInputFields({ projectID, computes: opts })
               }}
 
               placeholderText={
@@ -953,7 +1072,7 @@ const Component = ({item, project, onBackClick, onCompleted, needConfirmResetCom
               defaultValue={addModelData.computes}
               customRenderLabel={(item) => {
                 return <div className="c-ml__select-model--select-item"
-                            style={{opacity: item.data?.isAvailable === false ? 0.3 : 1}}>
+                  style={{ opacity: item.data?.isAvailable === false ? 0.3 : 1 }}>
                   {item.data.cpu ? <>
                     <span>{item.data.cpu.cpu}</span>
                     <span>Ram: {formatBytes(item.data?.cpu?.ram ?? 0)}</span>
@@ -989,49 +1108,33 @@ const Component = ({item, project, onBackClick, onCompleted, needConfirmResetCom
       >
         <CreateProjectSimple
           onCreated={(project: TProjectModel) => {
-            const goToProject = () => {
-              switch (project.flow_type) {
-                case "deploy":
-                  navigate(`/${project.flow_type}/${project.id}/demo-and-deploy`);
-                  break;
-                case "label-and-validate-data":
-                  navigate(`/${project.flow_type}/${project.id}/setup-infrastructure/storage`);
-                  break;
-                case "train-and-deploy":
-                  navigate(`/${project.flow_type}/${project.id}/setup-infrastructure/storage`);
-                  break;
-                case "fine-tune-and-deploy":
-                  navigate(`/${project.flow_type}/${project.id}/setup-infrastructure/storage`);
-                  break;
-              }
-            };
-
-            installable ? installModel(project.id, goToProject) : buyModel(project.id, goToProject);
+            installable ? installModel(project.id, () => goToProject(project)) : buyModel(project.id, () => goToProject(project));
           }}
           registerTrigger={cb => createProjectTrigger.current = cb}
           limitTasks={modelTasks}
         />
       </Modal>
+      {navigating && <LoadingPage message="Loading page..."></LoadingPage>}
     </div>
   );
 };
 
-export default function ModelDetail({project, onBackClick, onCompleted}: Omit<TProps, "item">) {
-  const {modelId} = useParams();
+export default function ModelDetail({ project, onBackClick, onCompleted, autoCreateProject }: Omit<TProps, "item">) {
+  const { modelId } = useParams();
   const data = useGetModelMarketplaceSell(modelId);
 
   if (data.loading || !data.detail) {
-    return <EmptyContent message="Loading model information..."/>;
+    return <EmptyContent message="Loading model information..." />;
   }
 
   if (data.detail?.model_type !== "rent_marketplace") {
     return <EmptyContent
       message="This model is not listed in the marketplace."
       buttons={[
-        {children: "Back", onClick: () => onBackClick()}
+        { children: "Back", onClick: () => onBackClick() }
       ]}
     />;
   }
 
-  return <Component project={project} onBackClick={onBackClick} onCompleted={onCompleted} item={data.detail}/>;
+  return <Component project={project} onBackClick={onBackClick} onCompleted={onCompleted} item={data.detail} autoCreateProject={autoCreateProject} />;
 }

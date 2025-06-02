@@ -137,7 +137,7 @@ export default function Tabs() {
               ].join(" ")}
               onClick={() => {
                 if (isSetup && firstPart === "setup-gpu" && t.urlKey === "from-marketplace") {
-                  navigate("/computes/computes-marketplace")
+                  navigate("/marketplace/computes")
                 } else {
                   navigate("/infrastructure/" + firstPart + "/" + t.urlKey);
                 }

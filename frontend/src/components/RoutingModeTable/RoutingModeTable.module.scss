@@ -1,0 +1,46 @@
+.RoutingNodeTable {
+    width: 600px;
+    border-collapse: collapse;
+    &Header {
+        font-weight: 600;
+        padding-bottom: 10px;
+        &DragIcon {
+            width: 60px;
+        }
+
+        &SelectIcon {
+            width: 30px;
+        }
+
+        &CLuster {
+            padding-left: 10px;
+        }
+    }
+
+    &Body {
+        &DragIcon {
+            width: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        &Row {
+            height: 50px;
+            border-top: 1px solid rgb(215, 215, 215);
+            border-bottom: 1px solid rgb(215, 215, 215);
+        }
+
+        &Cluster {
+            padding-left: 10px;
+        }
+    }
+
+    &Filter {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 20px;
+        max-width: 350px;
+    }
+}

@@ -827,7 +827,6 @@ const ComputesPage = () => {
               </div>
             ) : (
               <Deposit
-                totalHours={1}
                 priceDetailGPU={50}
                 onHandleRent={handleBuy}
                 setIsDeposit={v => setIsDeposit(v)}

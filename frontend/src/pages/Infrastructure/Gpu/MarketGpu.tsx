@@ -16,7 +16,7 @@ export default function MarketGpu() {
     <GpuLayout rightContent={(
       <>
         {autoProvisionNode}
-        <Button onClick={() => navigate("/computes/computes-marketplace")}>
+        <Button onClick={() => navigate("/marketplace/computes")}>
           <IconPlus />
           Add GPUs/CPUs
         </Button>

@@ -1,11 +1,8 @@
-import React, {useCallback, useEffect, useRef} from "react";
+import React, { useCallback, useEffect, useRef, Dispatch } from "react";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../providers/AuthProvider";
 import "./UserLayout.scss";
-import {
-  Navbar,
-  TNavbarBreadcrumb,
-} from "../components/Navbar/Navbar";
+import { Navbar, TNavbarBreadcrumb } from "../components/Navbar/Navbar";
 import { Sidebar } from "../components/Sidebar/Sidebar";
 import { AccountSettingProvider } from "../providers/AccountSettingProvider";
 import { useLoader } from "../providers/LoaderProvider";
@@ -16,17 +13,16 @@ import { TProjectModel } from "../models/project";
 import Alert, { AlertType } from "../components/Alert/Alert";
 import { useCentrifuge } from "../providers/CentrifugoProvider";
 
-
 export type TCentrifugeMsg = {
   id: number;
-  type: AlertType
-  message: string
-}
+  type: AlertType;
+  message: string;
+};
 
 export type TUserLayoutHook = {
-  setOpenCart:(isEmpty: boolean) => void;
+  setOpenCart: (isEmpty: boolean) => void;
   isShowCart: boolean;
-	clearLeftActions: () => void;
+  clearLeftActions: () => void;
   setLeftActions: (breadcrumbs: TNavbarBreadcrumb[]) => void;
   clearActions: () => void;
   setActions: (breadcrumbs: TNavbarBreadcrumb[]) => void;
@@ -44,6 +40,7 @@ export type TUserLayoutHook = {
   hideInfo: () => void;
   showInfo: () => void;
   setQualityInCart: (number: number) => void;
+  setExpandSideBar: Dispatch<React.SetStateAction<TSidebar>>;
 };
 
 export type TSidebar = {
@@ -53,8 +50,8 @@ export type TSidebar = {
 
 const UserLayoutContext = React.createContext<TUserLayoutHook>({
   clearLeftActions: () => void 0,
-	setLeftActions: () => void 0,
-	clearActions: () => void 0,
+  setLeftActions: () => void 0,
+  clearActions: () => void 0,
   setActions: () => void 0,
   setCloseCallback: () => void 0,
   clearCloseCallback: () => void 0,
@@ -72,6 +69,7 @@ const UserLayoutContext = React.createContext<TUserLayoutHook>({
   isShowCart: false,
   setOpenCart: () => void 0,
   setQualityInCart: () => void 0,
+  setExpandSideBar: () => void 0,
 });
 
 export default function UserLayout() {
@@ -79,21 +77,21 @@ export default function UserLayout() {
   const [breadcrumbs, setBreadcrumbsState] = React.useState<
     TNavbarBreadcrumb[] | null
   >(null);
-  const [leftActions, setLeftActionsState] = React.useState<TNavbarBreadcrumb[] | null>(
-    null
-	);
-	const [actions, setActionsState] = React.useState<TNavbarBreadcrumb[] | null>(
+  const [leftActions, setLeftActionsState] = React.useState<
+    TNavbarBreadcrumb[] | null
+  >(null);
+  const [actions, setActionsState] = React.useState<TNavbarBreadcrumb[] | null>(
     null
   );
   const [isShowCart, setIsShowCart] = React.useState(false);
   const [qualityInCart, setQualityInCart] = React.useState(0);
   const [closeCallBackUrl, setShowCloseCallBack] = React.useState<
     string | null
-		>(null);
+  >(null);
   const { onMessage } = useCentrifuge();
   const [alerts, setAlerts] = React.useState<Array<TCentrifugeMsg>>([]);
 
-	const [isInfoShowed, setIsInfoShowed] = React.useState<boolean>(true);
+  const [isInfoShowed, setIsInfoShowed] = React.useState<boolean>(true);
   const [isLayoutEmpty, setIsLayoutEmptyState] = React.useState<boolean>(false);
   const [navProjectData, setNavProjectData] =
     React.useState<TProjectModel | null>(null);
@@ -110,15 +108,15 @@ export default function UserLayout() {
   const isSetupPage = isSetupProject(location.pathname);
 
   const { user, logout } = useAuth();
-	const navigate = useNavigate();
-	
+  const navigate = useNavigate();
+
   const hideInfo = React.useCallback(() => {
     setIsInfoShowed(false);
   }, []);
   const showInfo = React.useCallback(() => {
     setIsInfoShowed(true);
-	}, []);
-	
+  }, []);
+
   const clearLeftActions = React.useCallback(() => {
     setLeftActionsState(null);
   }, []);
@@ -126,7 +124,6 @@ export default function UserLayout() {
   const setLeftActions = React.useCallback((actions: TNavbarBreadcrumb[]) => {
     setLeftActionsState(actions);
   }, []);
-
 
   const clearActions = React.useCallback(() => {
     setActionsState(null);
@@ -148,12 +145,9 @@ export default function UserLayout() {
     setNavProjectData(null);
   }, []);
 
-  const setNavDataProject = React.useCallback(
-    (data: TProjectModel | null) => {
-      setNavProjectData(data);
-    },
-    []
-  );
+  const setNavDataProject = React.useCallback((data: TProjectModel | null) => {
+    setNavProjectData(data);
+  }, []);
 
   const clearLayoutEmpty = React.useCallback(() => {
     setIsLayoutEmptyState(false);
@@ -173,7 +167,7 @@ export default function UserLayout() {
     },
     []
   );
-  
+
   const setOpenCart = React.useCallback((isOpen: any) => {
     setIsShowCart(isOpen);
   }, []);
@@ -192,12 +186,21 @@ export default function UserLayout() {
   useEffect(() => {
     if (location.pathname.startsWith("/admin") && !user?.is_superuser) {
       navigate("/dashboard/");
-    } else if (location.pathname.startsWith("/user/organization") && !user?.is_organization_admin) {
+    } else if (
+      location.pathname.startsWith("/user/organization") &&
+      !user?.is_organization_admin
+    ) {
       navigate("/dashboard/");
     }
-  }, [location.pathname, navigate, user?.is_organization_admin, user?.is_superuser]);
+  }, [
+    location.pathname,
+    navigate,
+    user?.is_organization_admin,
+    user?.is_superuser,
+  ]);
 
-  const isFirstLogin = (localStorage.getItem("isSignUpSuccess") ?? "") === "true";
+  const isFirstLogin =
+    (localStorage.getItem("isSignUpSuccess") ?? "") === "true";
 
   useEffect(() => {
     if (!isFirstLogin || location.pathname.startsWith("/first-time")) {
@@ -207,8 +210,19 @@ export default function UserLayout() {
     navigate("/first-time");
   }, [isFirstLogin, location.pathname, navigate]);
 
+  useEffect(() => {
+    if (location.pathname.startsWith("/workflows/flows")) {
+      const match = location.pathname.match(
+        /^\/workflows\/flows\/([^/]+)\/step\/([^/]+)$/
+      );
+      if (match) {
+        setExpandSideBar((prev) => ({ ...prev, isExpand: false }));
+      }
+    }
+  }, [location, setExpandSideBar]);
+
   const providerValue = React.useMemo<TUserLayoutHook>(() => {
-		return {
+    return {
       clearLeftActions,
       setLeftActions,
       clearActions,
@@ -228,11 +242,12 @@ export default function UserLayout() {
       showInfo,
       setOpenCart,
       isShowCart,
-      setQualityInCart
+      setQualityInCart,
+      setExpandSideBar,
     };
-	}, [
-		clearLeftActions,
-		setLeftActions,
+  }, [
+    clearLeftActions,
+    setLeftActions,
     clearActions,
     setActions,
     setCloseCallback,
@@ -245,12 +260,12 @@ export default function UserLayout() {
     clearBreadcrumbs,
     setBreadcrumbs,
     loaderFitContent,
-		loaderFullWidth,
-		hideInfo,
+    loaderFullWidth,
+    hideInfo,
     showInfo,
     setOpenCart,
     isShowCart,
-    setQualityInCart
+    setQualityInCart,
   ]);
 
   React.useEffect(() => {
@@ -287,37 +302,32 @@ export default function UserLayout() {
   //     setAlertMessage("");
   //     setMsgType(AlertType.Default);
   //   }, 3000);
-  
+
   // }, []);
-  const handleMessage = useCallback(
-    (message: TCentrifugeMsg) => {
-      const { type, message: msg } = message;
-      const id = Date.now(); // Use a timestamp or any unique value as ID
+  const handleMessage = useCallback((message: TCentrifugeMsg) => {
+    const { type, message: msg } = message;
+    const id = Date.now(); // Use a timestamp or any unique value as ID
 
-      // Add the new alert to the state with an ID
-      setAlerts((prevAlerts) => [...prevAlerts, { id, type, message: msg }]);
+    // Add the new alert to the state with an ID
+    setAlerts((prevAlerts) => [...prevAlerts, { id, type, message: msg }]);
 
-      // Set a timeout to remove this specific alert after 30 seconds
-      const timerId = setTimeout(() => {
-        setAlerts((prevAlerts) => prevAlerts.filter((alert) => alert.id !== id));
-      }, 5000); // Dismiss each alert after 30 seconds
+    // Set a timeout to remove this specific alert after 30 seconds
+    const timerId = setTimeout(() => {
+      setAlerts((prevAlerts) => prevAlerts.filter((alert) => alert.id !== id));
+    }, 5000); // Dismiss each alert after 30 seconds
 
-      // Optionally store timerId if you need to clear it later
-      timers.current[id] = timerId;
-    },
-    []
-  );
+    // Optionally store timerId if you need to clear it later
+    timers.current[id] = timerId;
+  }, []);
 
   const timers = useRef<{ [key: number]: NodeJS.Timeout }>({});
-
-
 
   useEffect(() => {
     if (user) {
       const userTopic = `user-notification/${user.uuid}`;
-      const unsubscribe = onMessage(userTopic, handleMessage as any, );
+      const unsubscribe = onMessage(userTopic, handleMessage as any);
       return () => {
-        unsubscribe()
+        unsubscribe();
       };
     }
     const timersSnapshot = { ...timers.current };
@@ -369,14 +379,20 @@ export default function UserLayout() {
           )}
           <AccountSettingProvider>
             <div
-              className={`layout-user__content ${!sideBarData.isExpand ? "close" : "open"} ${
-                isScrollbarVisible ? "scrollbar" : "auto"
-              } ${!isSetupPage ? "fit" : "full"}`}
+              className={`layout-user__content ${
+                !sideBarData.isExpand ? "close" : "open"
+              } ${isScrollbarVisible ? "scrollbar" : "auto"} ${
+                !isSetupPage ? "fit" : "full"
+              }`}
               style={
                 !isSetupPage
                   ? {
-                      marginLeft: sideBarData.isExpand ? sideBarData.sideBarW : 0,
-                      width: `calc(100% - ${sideBarData.isExpand ? (sideBarData.sideBarW + 26) : 26}px)`,
+                      marginLeft: sideBarData.isExpand
+                        ? sideBarData.sideBarW
+                        : 0,
+                      width: `calc(100% - ${
+                        sideBarData.isExpand ? sideBarData.sideBarW + 26 : 26
+                      }px)`,
                     }
                   : {}
               }

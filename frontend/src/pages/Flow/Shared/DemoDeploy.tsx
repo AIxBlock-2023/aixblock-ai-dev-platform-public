@@ -232,14 +232,15 @@ export default function DemoDeploy(props: TDemoAndDeployProps) {
                 {deployUrl && createAlertInfo("Your API endpoint is now live and ready for use! Refer to the API Documents for detailed usage instructions.", false)}
                 <InputBase
                   label="API Endpoint URL"
-                  value={deployUrl ? (deployUrl + "action") : "Installation in progress..."}
+                  // value={deployUrl ? (deployUrl + "action") : "Installation in progress..."}
+                  value={deployUrl ? (deployUrl) : "Installation in progress..."}
                   readonly
                   allowClear={false}
                 />
                 {deployUrl && (
                   <div className={styles.copyOpen}>
                     <Button size="tiny" onClick={() => {
-                      copy(deployUrl + "action").then(() => {
+                      copy(deployUrl).then(() => {
                         toastSuccess("Endpoint URL has been copied");
                       });
                     }} isBlock>

@@ -8,8 +8,7 @@ import "./prototypes";
 import { ToastContainer } from "react-toastify";
 import "@xyflow/react/dist/style.css";
 import { Buffer } from "buffer";
-import web3AuthContextConfig from "./web3AuthContext";
-import { Web3AuthProvider } from "@web3auth/modal-react-hooks";
+import { ParticleConnectkit } from "./connectkit";
 
 if (!window.APP_SETTINGS.hostname.endsWith("/")) {
   window.APP_SETTINGS.hostname += "/";
@@ -25,11 +24,11 @@ if (ele) {
   const root = ReactDOM.createRoot(ele);
 
   root.render(
-    <React.StrictMode>
-      <Web3AuthProvider config={web3AuthContextConfig}>
-      <RouterProvider router={router} />
-      <ToastContainer style={{ zIndex: Number.MAX_SAFE_INTEGER }} />
-      </Web3AuthProvider>
-    </React.StrictMode>
+    <ParticleConnectkit>
+      <React.StrictMode>
+        <RouterProvider router={router} />
+        <ToastContainer style={{ zIndex: Number.MAX_SAFE_INTEGER }} />
+      </React.StrictMode>
+    </ParticleConnectkit>
   );
 }

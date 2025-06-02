@@ -33,7 +33,7 @@ const options = [
       "Access affordable, decentralized computing power with no setup or vendor lock-in, secured by blockchain technology.",
     buttonText: "Start Now",
     type: "primary",
-    routePath: "/computes/computes-marketplace",
+    routePath: "/marketplace/computes",
   },
 ];
 

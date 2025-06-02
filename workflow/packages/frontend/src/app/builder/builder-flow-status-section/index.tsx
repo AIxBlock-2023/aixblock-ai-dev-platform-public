@@ -48,7 +48,6 @@ const BuilderFlowStatusSection = React.memo(() => {
         </>
       )}
       <EditFlowOrViewDraftButton />
-      {data?.token && <SellButton flow={flow} setFlow={setFlow} />}
       <PublishButton />
     </>
   );

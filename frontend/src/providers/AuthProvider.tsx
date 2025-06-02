@@ -12,7 +12,7 @@ import { useLoader } from "./LoaderProvider";
 import {confirmDialog, infoDialog} from "../components/Dialog";
 import Modal from "../components/Modal/Modal";
 import useDebouncedEffect from "../hooks/useDebouncedEffect";
-import { useWeb3Auth } from "@web3auth/modal-react-hooks";
+import { useDisconnect, useAccount } from "@particle-network/connectkit";
 
 export type TAuthProvider = {
   error: string | null;
@@ -75,7 +75,8 @@ export function AuthProvider(props: React.PropsWithChildren) {
   const { call } = useApi();
   const { createLoader } = useLoader();
   const [verifyEmailSent, setVerifyEmailSent] = React.useState<boolean>(false);
-  const { status, logout: walletLogout } = useWeb3Auth();
+  const { isConnected: connectedParticle  } = useAccount();
+  const { disconnect } = useDisconnect();
 
   const login = React.useCallback(
     async (
@@ -288,9 +289,9 @@ export function AuthProvider(props: React.PropsWithChildren) {
       message: "Are you sure you want to logout?",
       onSubmit() {
         sessionStorage.removeItem('hasReloaded');
-        if (status === "connected") {
+        if (connectedParticle) {
           try {
-            walletLogout();
+            disconnect();
           } catch (e) {}
         }
         terminateSession();
@@ -299,7 +300,7 @@ export function AuthProvider(props: React.PropsWithChildren) {
         setShowLogoutConfirm(false);
       },
     });
-  }, [showLogoutConfirm, terminateSession, status, walletLogout]);
+  }, [showLogoutConfirm, terminateSession, disconnect, connectedParticle]);
 
   useDebouncedEffect(() => {
     const closeLoader = createLoader("Checking credentials...");

@@ -5,7 +5,7 @@ import {useBooleanLoader} from "@/providers/LoaderProvider";
 import EmptyContent from "@/components/EmptyContent/EmptyContent";
 import useDebouncedEffect from "@/hooks/useDebouncedEffect";
 import { useCentrifuge } from "@/providers/CentrifugoProvider";
-import { getPredictModel, getPredictTask } from "@/utils/models";
+// import { getPredictModel } from "@/utils/models";
 
 type TDemoProps = {
   project: TProjectModel;
@@ -29,20 +29,20 @@ export default function Demo({project}: TDemoProps) {
     }
 
     const controller = new AbortController();
-    const modelId = (backend.model_checkpoint !== null && backend.model_checkpoint !== "")
-      ? backend.model_checkpoint
-      : getPredictModel(project.label_config_title);
+    // const modelId = (backend.model_checkpoint !== null && backend.model_checkpoint !== "")
+    //   ? backend.model_checkpoint
+    //   : getPredictModel(project.label_config_title);
 
     const requestOptions = {
-      method: "POST",
+      method: "GET",
       headers: {"Content-Type": "application/json"},
-      body: JSON.stringify({
-        project: projectID.toString(),
-        params: {
-          task: getPredictTask(project.label_config_title),
-          model_id: modelId,
-        },
-      }),
+      // body: JSON.stringify({
+      //   project: projectID.toString(),
+      //   params: {
+      //     task: getPredictTask(project.label_config_title),
+      //     model_id: modelId,
+      //   },
+      // }),
       signal: controller.signal,
     };
 
@@ -56,15 +56,16 @@ export default function Demo({project}: TDemoProps) {
     const fetchData = (retryCount = 1) => {
       console.log("Request Options:", requestOptions);
   
-      fetch(url + "/model", requestOptions)
-        .then(r => r.json())
+      fetch(url , requestOptions)
+        // .then(r => r.json())
         .then(r => {
           console.log("Response:", r);
-          if (controller.signal.aborted || !Object.hasOwn(r, "share_url")) {
-            throw new Error("No share_url in response.");
-          }
+          // if (controller.signal.aborted || !Object.hasOwn(r, "share_url")) {
+          //   throw new Error("No share_url in response.");
+          // }
   
-          setPreviewUrl(r.share_url);
+          // setPreviewUrl(r.share_url);
+          setPreviewUrl(url);
         })
         .catch(e => {
           console.error("Fetch error:", e);

@@ -6,6 +6,7 @@ export type TMarketplaceGpuListModel = {
   compute_id: number,
   compute_gpus: TMarketplaceGpuModel[],
   compute_name: string,
+  rental_hours: number,
   compute_cpu: {
     name?: string,
     cpu?: string,
@@ -27,6 +28,7 @@ export const marketplaceGpuListModelSchema: JSONSchemaType<TMarketplaceGpuListMo
     properties: {
       compute_id: { type: "number" },
       compute_name: { type: "string" },
+      rental_hours: { type: "number" },
       compute_gpus: { type: "array", items: marketplaceGpuModelSchema },
       compute_cpu: {
         type: "object",
@@ -48,6 +50,7 @@ export const marketplaceGpuListModelSchema: JSONSchemaType<TMarketplaceGpuListMo
       "compute_id",
       "compute_name",
       "compute_gpus",
+      "rental_hours",
       "compute_cpu",
       "is_scale",
     ],

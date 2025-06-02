@@ -64,7 +64,11 @@ const MemoizedSidebarItem = (props: ISidebarItemProps) => {
               ? openNewTab(window.APP_SETTINGS.hostname + "notebook/")
               : item.path === "/discord/"
                 ? openNewTab("https://discord.gg/wHkVHdw8Rn")
-                : navigate(item.path)
+                : item.path === "/open-source/"
+                  ? openNewTab("https://github.com/AIxBlock-2023/aixblock-ai-dev-platform-public")
+                  : item.path === "/open-dataset/"
+                    ? openNewTab("https://huggingface.co/AIxBlock")
+                    : navigate(item.path)
         }
       >
         <div className={`c-sidebar__item-content ${isShowSidebarItems ? "active" : ""}`}>

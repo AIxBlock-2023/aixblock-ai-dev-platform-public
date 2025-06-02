@@ -1,0 +1,10 @@
+.cpuItem {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-height: 650px;
+    width: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding-right: 10px;
+}

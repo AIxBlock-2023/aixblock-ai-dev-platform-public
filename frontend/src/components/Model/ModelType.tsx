@@ -25,8 +25,8 @@ export default function ModelType({model_type, onChange, label, isProcessing, is
   return (
     <>
       <Select
-        label={label ?? "Model Type"}
-        placeholderText="Select model type"
+        label={label ?? "Workflow"}
+        placeholderText="Select workflow"
         disabled={isProcessing}
         isRequired={isRequired}
         data={[{

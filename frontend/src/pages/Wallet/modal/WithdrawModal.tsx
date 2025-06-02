@@ -1,8 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 // import Modal from "@/components/Modal/Modal";
 import WithdrawWithAXBModal from "./WithdrawWithAXBModal";
 import WithdrawWithFiatModal from "./WithdrawWithFiatModal";
 import "./DepositAndWithdrawModal.scss";
+import { toastError } from "@/utils/toast";
+import { useConnect } from "@particle-network/authkit";
 
 type WithdrawModalProps = {
   open: boolean;
@@ -15,32 +17,44 @@ const WithdrawModal = (props: WithdrawModalProps) => {
   // const [openWithdrawWithFiatModal, setOpenWithdrawWithFiatModal] =
   //   useState(false);
 
-  const [openWithdrawWithAXBModal, setOpenWithdrawWithAXBModal] = useState(false);
-  const [openWithdrawWithFiatModal, setOpenWithdrawWithFiatModal] = useState(false);
+  const [openWithdrawWithAXBModal, setOpenWithdrawWithAXBModal] =
+    useState(false);
+  const [openWithdrawWithFiatModal, setOpenWithdrawWithFiatModal] =
+    useState(false);
+
+  const { connected: connectedParticle } = useConnect();
+
+  const onOpenWithdrawWithAXBModal = useCallback(() => {
+    if (connectedParticle) {
+      setOpenWithdrawWithAXBModal(true);
+    } else {
+      toastError("Wallet is not connected yet. Please connect your wallet.");
+    }
+  }, [connectedParticle]);
 
   useEffect(() => {
     if (props.open) {
-      setOpenWithdrawWithAXBModal(true);
+      onOpenWithdrawWithAXBModal();
     } else {
       setOpenWithdrawWithAXBModal(false);
       setOpenWithdrawWithFiatModal(false);
     }
-  }, [props.open]);
+  }, [props.open, onOpenWithdrawWithAXBModal]);
   return (
-      <>
-        <WithdrawWithAXBModal
-          open={openWithdrawWithAXBModal}
-          onCancel={(open) => {
-            setOpenWithdrawWithAXBModal(open);
-            props.onCancel(open);
-          }}
-        />
-        <WithdrawWithFiatModal
-          open={openWithdrawWithFiatModal}
-          onCancel={setOpenWithdrawWithFiatModal}
-        />
-      </>
-    );
+    <>
+      <WithdrawWithAXBModal
+        open={openWithdrawWithAXBModal}
+        onCancel={(open) => {
+          setOpenWithdrawWithAXBModal(open);
+          props.onCancel(open);
+        }}
+      />
+      <WithdrawWithFiatModal
+        open={openWithdrawWithFiatModal}
+        onCancel={setOpenWithdrawWithFiatModal}
+      />
+    </>
+  );
   // return (
   //   <>
   //     <Modal

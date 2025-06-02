@@ -23,11 +23,11 @@ type EmbeddingState = {
 
 const defaultState: EmbeddingState = {
   isEmbedded: false,
-  hideSideNav: false,
-  hideLogoInBuilder: false,
+  hideSideNav: true,
+  hideLogoInBuilder: true,
   prefix: '',
-  disableNavigationInBuilder: false,
-  hideFolders: false,
+  disableNavigationInBuilder: true,
+  hideFolders: true,
   hideFlowNameInBuilder: false,
   hideExportAndImportFlow: false,
   useDarkBackground: window.opener !== null,

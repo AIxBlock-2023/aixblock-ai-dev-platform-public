@@ -1,0 +1,54 @@
+.marketplace__container {
+  .p-computes-marketplace-v2__left,
+  .p-computes-marketplace-v2__right {
+    top: 134px;
+  }
+  #PreviewContainer {
+    position: absolute;
+    top: 67px;
+    left: 0;
+    width: 100%;
+    height: calc(100vh - 96px);
+    z-index: 9;
+    .mask {
+      background: rgba(255, 255, 255, .3);
+      position: absolute;
+      inset: 0;
+      z-index: 9;
+      width: 100%;
+      top: 0;
+      left: 0;
+      height: 100%;
+      backdrop-filter: blur(1px);
+    }
+    iframe {
+      border: none;
+    }
+    .c-empty-content {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-75%);
+      z-index: 10;
+    }
+    .closeButton {
+      position: absolute;
+      bottom: 6px;
+      left: 50%;
+      transform: translateX(50px);
+      width: 28px;
+      height: 28px;
+      border-radius: 28px;
+      margin-right: 3px;
+      cursor: pointer;
+      line-height: 28px;
+      background-color: rgba(0, 0, 0, 0.5);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      &:hover {
+        background-color: rgba(0, 0, 0, 0.8);
+      }
+    }
+  }
+}

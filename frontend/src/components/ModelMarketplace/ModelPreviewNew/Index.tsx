@@ -75,6 +75,7 @@ interface IModelPreviewProps {
     [key: string]: Config;
   }>>,
   installable?: boolean;
+  minRentalHoursModel: number;
 }
 
 export type TCalculateComputeGpuResponse = {
@@ -113,7 +114,8 @@ const ModelPreview = (props: IModelPreviewProps) => {
     setIsInValidModelSource,
     setIsInValidCheckpoint,
     config,
-    setConfig
+    setConfig,
+    minRentalHoursModel,
   } = props;
 
   let modelConfig = null;
@@ -135,7 +137,7 @@ const ModelPreview = (props: IModelPreviewProps) => {
   //   height: modelConfig?.image_height?.toString() || "213",
   // });
   // const [resolution, setResolution] = useState<string>(modelConfig?.resolution?.toString() || "320");
-  const [framework, setFramework] = useState<string>(modelConfig?.framework?.toString() || "pytorch");
+  const [framework, setFramework] = useState<string>(modelConfig?.framework?.toString() || "huggingface");
 
   const isDeploy = detail?.flow_type === "deploy";
   // const isDeploy = detail?.flow_type === "deploy";
@@ -155,7 +157,7 @@ const ModelPreview = (props: IModelPreviewProps) => {
   });
   
   const [estimateCost, setEstimateCost] = useState<string>(calculateComputeGpu?.total_cost?.toString() || '0');
-  const [rentTime, setRentTime] = useState<string>(estimateTime);
+  const [rentTime, setRentTime] = useState<string>(minRentalHoursModel.toString());
   const [rentCost, setRentCost] = useState<string>(estimateCost);
   // const [epochs, setEpochs] = useState<string>(detail?.epochs?.toString() || "10");
   // const [batchSize, setBatchSize] = useState<string>(detail?.batch_size?.toString() || "10");
@@ -323,18 +325,9 @@ const ModelPreview = (props: IModelPreviewProps) => {
 
   useEffect(() => {
     if (estimateTime && +estimateTime < 1) {
-      setRentTime("1");
       setEstimateTime("1");
     }
   }, [estimateTime]);
-
-  useEffect(() => {
-    const rt = parseInt(rentTime) ?? 0;
-
-    if (rt && +rt < 1) {
-      setRentTime("1");
-    }
-  }, [rentTime]);
 
   useEffect(() => {
     onUpdateModelData?.((prev: any) => ({
@@ -653,7 +646,6 @@ const ModelPreview = (props: IModelPreviewProps) => {
 
             setCalculateComputeGpu(data);
             setEstimateTime(data.time)
-            setRentTime((+data.time < 1) ? "1" : data.time)
             setRentCost(data.total_cost)
             setEstimateCost(data.total_cost)
             setParams(parseInt(data.paramasters));

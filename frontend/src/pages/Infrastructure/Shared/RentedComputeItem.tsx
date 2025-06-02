@@ -49,7 +49,7 @@ export type TProps = {
   image?: string;
   type?: string;
   schema?: string | null;
-  onDeleteCompute?: (id: number) => void,
+  onDeleteCompute?: (id: number, infrastructure_id?: number | string | null) => void,
   onNotificationClick?: () => void,
   history_id: number;
   new_notification_count?: number;
@@ -91,18 +91,13 @@ export default function RentedComputeItem(props: TProps) {
         isBlock={true}
         hoverText="Delete Compute"
         icon={<IconTrash/>}
-        onClick={() => props.onDeleteCompute?.(props.history_id)}
-        disabled={props.payment_method === "crypto" ? true : false}
-      />
-    );
-
-    const deleteCryptoButton = (
-      <Button
-        isBlock={true}
-        hoverText="Delete Compute by Crypto"
-        icon={<IconTrash/>}
-        disabled={props.payment_method === "crypto" ? false : true}
-        onClick={() => props.onDeleteComputeCrypto?.(props.history_id)}
+        onClick={() => {
+          if (props.payment_method === "crypto") {
+            props.onDeleteComputeCrypto?.(props.history_id);
+          } else {
+            props.onDeleteCompute?.(props.history_id, props.infrastructure_id);
+          }
+        }}
       />
     );
 
@@ -191,7 +186,7 @@ export default function RentedComputeItem(props: TProps) {
           notificationButton,
           editVerifyButton,
           copyVerifyCommandButton,
-          deleteCryptoButton
+          // deleteCryptoButton
         ],
       };
     } else if (props?.installStatus === "failed") {
@@ -201,7 +196,6 @@ export default function RentedComputeItem(props: TProps) {
         actions: [
           deleteButton,
           notificationButton,
-          deleteCryptoButton
         ],
       };
     } else if (props?.installStatus === "completed") {
@@ -212,7 +206,6 @@ export default function RentedComputeItem(props: TProps) {
           deleteButton,
           // pauseButton,
           notificationButton,
-          deleteCryptoButton
         ],
       };
     } else if (props?.installStatus === "wait_crypto") {

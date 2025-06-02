@@ -39,6 +39,15 @@
     &.clickable {
       cursor: pointer;
     }
+
+    &Service {
+      text-transform: uppercase;
+      padding-left: 2px;
+    }
+
+    &IP {
+      cursor: pointer;
+    }
   }
 
   &BadgeGreen {
@@ -145,6 +154,8 @@
     &Download,
     &Duration,
     &Reliability,
+    &PayerEmail,
+    &PayerName,
     &Image {
       margin-top: 10px;
 
@@ -211,9 +222,9 @@
       box-sizing: border-box;
       font-size: 14px;
       font-weight: 600;
-      padding: 8px 12px;
+      padding: 6px 12px;
       text-align: center;
-      width: 140px;
+      width: 100%;
 
       &Blue {
         border: 1px solid #5050FF;

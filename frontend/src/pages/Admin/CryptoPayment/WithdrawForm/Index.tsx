@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useMemo, useState } from "react";
+import React, { memo, useState } from "react";
 import IconPlus from "@/assets/icons/IconPlus";
 import Button from "@/components/Button/Button";
 import InputBase from "@/components/InputBase/InputBase";

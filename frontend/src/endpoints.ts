@@ -60,6 +60,7 @@ const Endpoints: { [k: string]: string } = {
   myOrganizations: "GET:api/organizations/",
   mlBackends: "GET:api/ml",
   mlNetWork: "GET:api/ml/ml-network",
+  updateRoutingMode: "POST:api/ml/ml-network/routing-mode",
   updateTask: "PATCH:api/tasks/:id",
   deleteMember: "POST:api/organizations/remove-member",
   organizationList: "GET:api/organizations/admin",
@@ -76,7 +77,7 @@ const Endpoints: { [k: string]: string } = {
   deleteModel: "DELETE:api/model_marketplace/:id",
   deleteHistoryBuildandDeployModel: "DELETE:api/model_marketplace/history-build-deploy/:id",
   updateModel: "PATCH:api/model_marketplace/update-model/:id",
-  createModel: "POST:api/model_marketplace",
+  createModel: "POST:api/model_marketplace/",
   mlBackendsByPrj: "GET:api/ml/",
   getMlBackendByMlId: "GET:api/ml/:id",
   delMLBackend: "DELETE:api/ml/:id",
@@ -332,8 +333,13 @@ const Endpoints: { [k: string]: string } = {
   // Orders
   adminOrders: "GET:api/orders/",
 
-  // Workflow
+  // Workflows
+  getWorkflowByProjectId: "GET:api/workflows/get-workflow",
   getWorkflowsToken: "GET:api/workflows-token",
+  getWorkflowTemplates: "GET:api/workflows-listing",
+  getWorkflowTemplateDetail: "GET:api/workflows-listing/:id",
+  createWorkflowTemplate: "GET:api/workflows-listing/:id/create-template",
+  getWorkflowTemplateCategories: "GET:api/workflows-listing/categories",
 };
 
 export default Endpoints;

@@ -7,14 +7,15 @@ export const useDeleteCompute = () => {
   const [error, setError] = useState<string | null>(null);
   const api = useApi();
 
-  const deleteCompute = useCallback((id: number, project_id?: number) => {
+  const deleteCompute = useCallback((id: number, project_id?: number, infrastructure_id?: number | string | null) => {
     setLoading(true);
     setError(null);
 
     const ar = api.call("deleteRentedGpu", {
       params: {id: id.toString()},
       query: new URLSearchParams({
-        project_id: project_id?.toString() || ""
+        project_id: project_id?.toString() || "",
+        infrastructure_id: infrastructure_id?.toString() || ""
       }),
     });
 

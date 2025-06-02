@@ -73,6 +73,7 @@ import ModelTasks from "@/pages/Admin/Model/Tasks/Tasks";
 import AdminOrders from "@/pages/Admin/Orders/AdminOrders";
 import WorkflowsProvider from "./providers/WorkflowsProvider";
 import Workflows from "./pages/Workflows/Workflows";
+import marketplaceRoutes from "./routes/marketplace";
 
 const Providers = composeProviders([
   { provider: PayPalScriptProvider, props: { options: { clientId: window.APP_SETTINGS.paypalClientId } } },
@@ -205,10 +206,12 @@ const router = createBrowserRouter(
           <Route path="wallet" element={<WalletPage />} />
           <Route path="organization" element={<Organizations />} handle={{ title: 'Organizations' }} />
         </Route>
+        <Route path="wallet" element={<WalletPage />} />
 
         <Route path="/dashboard" element={<DashboardPage/>} handle={{ title: "Dashboard" }}/>
 
         {infrastructureRoutes}
+        {marketplaceRoutes}
         {trainAndDeployRoutes}
         {fineTuneAndDeployRoutes}
         {deployRoutes}

@@ -14,8 +14,9 @@ export const ROLES = "ROLES";
 export const ROLE_OPTIONS = [
   {label: "AI Developer & AI Adopter", value: "2"},
   {label: "Compute supplier", value: "1"},
-  {label: "AI/ML model seller", value: "3"},
+  // {label: "AI/ML model seller", value: "3"},
   {label: "Labeler", value: "4"},
+  {label: "Automation Workflow Builder or Seller", value: "5"},
 ];
 
 export default function Signup() {
@@ -172,14 +173,14 @@ export default function Signup() {
         <div className="sign-up-left-content">
           <img src={require("../assets/images/logo.png")} alt="Logo"/>
           <span className="sign-up-left-text">
-            A decentralized platform for<br/>
-            AI development and productization
+            The first MCP-native platform for<br/>
+            AI model development & workflow automation
           </span>
           <div style={{marginTop: 72, marginBottom: 48}}>
             <WhatCanYouDo/>
           </div>
           <div style={{textAlign: "center"}}>
-            <small>Save up to 90% on costs while ensuring full privacy, security, and scalability.</small>
+            <small>Powerful AI development meets automation workflows — with 90% lower compute costs.</small>
           </div>
         </div>
       </div>
@@ -220,12 +221,7 @@ export default function Signup() {
             <Select
               className="role"
               data={[{
-                options: [
-                  {label: "AI Developer & AI Adopter", value: "2"},
-                  {label: "Compute supplier", value: "1"},
-                  {label: "AI/ML model seller", value: "3"},
-                  {label: "Labeler", value: "4"},
-                ],
+                options: ROLE_OPTIONS,
               }]}
               defaultValue={roleOption}
               isLoading={isChecking}

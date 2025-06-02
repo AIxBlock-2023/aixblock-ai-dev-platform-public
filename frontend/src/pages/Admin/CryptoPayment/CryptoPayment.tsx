@@ -4,12 +4,12 @@ import AdminLayout from "../Layout";
 
 import EmptyContent from "@/components/EmptyContent/EmptyContent";
 import { useApi } from "@/providers/ApiProvider";
-import { USDC } from "@/utils/solanaAddress";
 import { toastError } from "@/utils/toast";
 import Button from "@/components/Button/Button";
 import styles from "./CryptoPayment.module.scss";
 import Modal from "@/components/Modal/Modal";
 import WithdrawForm from "./WithdrawForm/Index";
+import { getTokenByChainId } from "@/utils/solanaAddress";
 
 const CryptoPayment = () => {
   const userLayout = useUserLayout();
@@ -36,7 +36,7 @@ const CryptoPayment = () => {
       if (api) {
         const ar = api.call("adminCryptoPaymentBalance", {
           query: new URLSearchParams({
-            address: USDC.address,
+            address: getTokenByChainId(101).USDC.address,
           }),
         });
         try {

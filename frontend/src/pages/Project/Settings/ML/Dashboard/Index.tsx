@@ -5,7 +5,6 @@ import {useApi} from "@/providers/ApiProvider";
 import EmptyContent from "@/components/EmptyContent/EmptyContent";
 import useDebouncedEffect from "@/hooks/useDebouncedEffect";
 import {useCentrifuge} from "@/providers/CentrifugoProvider";
-import Switch from "@/components/Switch/Switch";
 
 export default function Dashboard({backend, onClose}: {
   backend: TMLBackend,
@@ -24,7 +23,7 @@ export default function Dashboard({backend, onClose}: {
   const [activeTab, setActiveTab] = React.useState</*"tensorboard" |*/ "dashboard" | "system" | "logs" | null>(null);
   const {onMessage} = useCentrifuge();
   const [logs, setLogs] = useState("");
-  const [logsAutoScrollToEnd, setLogsAutoScrollToEnd] = useState(true);
+  const [logsAutoScrollToEnd] = useState(true);
   const logsContainerRef = useRef<HTMLDivElement>(null);
 
   useDebouncedEffect(() => {
@@ -49,7 +48,7 @@ export default function Dashboard({backend, onClose}: {
         const data = await r.json();
         // setTensorboardUrl("https://" + data.tensorboard_url);
         setWorkspaceUrl("https://" + data.tensorboard_url);
-        setSystemUrl("https://" + data.dashboard_url);
+        setSystemUrl(data.dashboard_url.startsWith("http") ? data.dashboard_url : "https://" + data.dashboard_url);
         setLogsUrl("https://" + data.dashboard_url);
         setLoadingTensorboard(false);
       })
@@ -139,12 +138,12 @@ export default function Dashboard({backend, onClose}: {
             Workspace
           </div>
         )}
-        {/* {systemUrl && (
+        {systemUrl && (
           <div className={"c-ml-dashboard__tab " + (activeTab === "system" ? "active" : "")} onClick={() => setActiveTab("system")}>
-            System
+            Dashboard
           </div>
-        )} */}
-        {logsUrl && (
+        )}
+        {/* {logsUrl && (
           <div className={"c-ml-dashboard__tab " + (activeTab === "logs" ? "active" : "")} onClick={() => setActiveTab("logs")}>
             <div style={{
               display: "flex",
@@ -155,7 +154,7 @@ export default function Dashboard({backend, onClose}: {
               <Switch label="Auto scroll" checked={logsAutoScrollToEnd} onChange={v => setLogsAutoScrollToEnd(v)} />
             </div>
           </div>
-        )}
+        )} */}
         <div className="c-ml-dashboard__tab" onClick={onClose}>
           Close
         </div>

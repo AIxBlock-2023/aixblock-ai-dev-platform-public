@@ -367,7 +367,7 @@ export default class SolanaRpc {
         tokenAccountPubkey
       );
 
-      return balanceResult?.value?.uiAmount?.toFixed(2) || "0";
+      return balanceResult?.value?.uiAmount?.toFixed(4) || "0";
     } catch (error) {
       console.error("Failed to get token balance:", error);
       throw error;

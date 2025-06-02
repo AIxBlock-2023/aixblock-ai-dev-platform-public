@@ -120,8 +120,10 @@ export const ROUTE = [
   "self-host",
   "lease-out-compute",
   "infrastructure",
+  "marketplace",
   "models-marketplace",
   "workflows",
+  "template-marketplace",
 ];
 
 export const GENERAL_ENUM = {

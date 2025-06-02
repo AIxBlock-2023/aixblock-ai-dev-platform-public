@@ -25,12 +25,17 @@ export AP_REDIS_DB=$(SESSION_REDIS_DB)
 export AP_QUEUE_MODE=REDIS
 
 build-ui:
-	cd frontend \
-		&& npm i \
+	source ~/.nvm/nvm.sh \
+		&& cd frontend \
+		&& nvm install \
+		&& nvm use \
+		&& npm i --legacy-peer-deps \
 		&& npm run build
 
 dev-ui:
-	cd frontend \
+	source ~/.nvm/nvm.sh \
+		&& cd frontend \
+		&& nvm use \
 		&& rm -rf build \
 		&& HTTPS=true npm run start
 

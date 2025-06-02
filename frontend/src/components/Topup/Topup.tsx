@@ -14,11 +14,11 @@ import useStripeProvider from "@/providers/StripeProvider";
 import {IconInfoV2} from "@/assets/icons/IconInfoV2";
 import {Tooltip} from "react-tooltip";
 import CustomAmount from "./CustomAmount";
-import { useWeb3Auth } from "@web3auth/modal-react-hooks";
-import solanaRPC from "../../solanaRPC";
-import { IProvider } from "@web3auth/base";
-import { USDC } from "../../utils/solanaAddress";
+import { getTokenByChainId } from "../../utils/solanaAddress";
 import { IOnchainBalance } from "../../pages/Wallet";
+import { useConnect } from "@particle-network/authkit";
+import { useSolana } from "@particle-network/authkit";
+import SolanaRpcParticle from "@/solanaRPCParticle";
 
 const payPalStyles: PayPalButtonsComponentProps["style"] = {
   shape: "rect",
@@ -41,12 +41,17 @@ export default function Topup({amount, note, onFinish, gateway = "STRIPE", onFin
   const {addPromise} = usePromiseLoader();
   const stripe = useStripeProvider();
   const [isCustomAmount, setIsCustomAmount] = React.useState(false);
-  const { status, provider } = useWeb3Auth();
   const [onchainBalance, setOnchainBalance] = useState<IOnchainBalance>({
     solBalance: "0",
     usdcBalance: "0",
   });
+  const { connected: connectedParticle } = useConnect();
 
+  const {
+    address, // Solana public address
+    chainId, // Current chain (Mainnet, Testnet, Devnet)
+  } = useSolana();
+  
   const depositAmount = useMemo(() => {
     if (amount > portfolio.balance) {
       return amount - portfolio.balance;
@@ -57,7 +62,7 @@ export default function Topup({amount, note, onFinish, gateway = "STRIPE", onFin
 
   const depositAmountWithFee = useMemo(() => {
     if (gateway === "STRIPE") {
-      return stripe.getFee(depositAmount);
+      return depositAmount + stripe.getFee(depositAmount);
     }
 
     if (depositAmount === 0) {
@@ -79,28 +84,25 @@ export default function Topup({amount, note, onFinish, gateway = "STRIPE", onFin
   useEffect(() => {
       const init = async () => {
         try {
-          if (!provider) {
-            return;
-          }
-          if (status === "connected") {
-            const rpc = new solanaRPC(provider as IProvider);
-            const address = await rpc.getAccounts();
+          if (connectedParticle && address && chainId) {
+            const rpc = new SolanaRpcParticle(chainId);
+  
             const [solBalance, usdcBalance] = await Promise.all([
-              rpc.getBalance(),
-              rpc.getTokenBalance(address, USDC.address),
+              rpc.getBalance(address),
+              rpc.getTokenBalance(address, getTokenByChainId(chainId).USDC.address),
             ]);
             setOnchainBalance({
               solBalance,
               usdcBalance,
             });
-          }
+          }  
         } catch (error) {
           // toastError("Get wallet address failed");
         }
       };
   
       init();
-    }, [provider, status]);
+    }, [connectedParticle, address, chainId]);
 
   const createPayPalOrder = useCallback(async () => {
     console.log(depositAmountWithFee);
@@ -195,14 +197,14 @@ export default function Topup({amount, note, onFinish, gateway = "STRIPE", onFin
               <p className={styles.topupContentTotalAmount}>Current Fiat Balance <sup>(1)</sup></p>
               <p className={styles.topupContentTotalPrice}>{formatFloat(portfolio.balance ?? 0, PRICE_FP)} {TOKEN_SYMBOL_DEFAULT}</p>
             </div>
-            {provider && status === 'connected' && <>
+            {connectedParticle && address && chainId && <>
             <div className={styles.topupContentTotal}>
                 <p className={styles.topupContentTotalAmount}>Current Crypto balance <sup>(2)</sup> </p>
                 <p className={styles.topupContentTotalPrice}>{onchainBalance.usdcBalance} {TOKEN_SYMBOL_DEFAULT}</p>
               </div>
             </>}
             <div className={styles.topupContentTotal}>
-              <p className={styles.topupContentTotalAmount}>Total amount <sup>(3)</sup></p>
+              <p className={styles.topupContentTotalAmount}>Total amount <sup>(2)</sup></p>
               <p
                 className={styles.topupContentTotalPrice}>{formatFloat(amount, PRICE_FP)} {TOKEN_SYMBOL_DEFAULT}</p>
             </div>
@@ -255,7 +257,7 @@ export default function Topup({amount, note, onFinish, gateway = "STRIPE", onFin
             {
               portfolio.loading
                 ? <small>Refreshing account's balance...</small>
-                : <Button onClick={onFinishCrypto} type="secondary">Pay with crypto</Button>
+                : onFinishCrypto && <Button onClick={onFinishCrypto} type="secondary">Pay with crypto</Button>
             }
           </div>
         </div>

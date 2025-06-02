@@ -32,6 +32,14 @@
     gap: 12px;
     cursor: pointer;
 
+    ol {
+      padding-left: 14px;
+
+      li + li {
+        margin-top: 8px;
+      }
+    }
+
     &Disabled {
       opacity: 0.5;
       cursor: default;

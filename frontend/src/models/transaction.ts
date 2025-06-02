@@ -12,7 +12,7 @@ export type TTransaction = {
   wallet_address?: string;
   unit?: "usdc" | "usd" | "sol";
   network?: "fiat" | "paypal" | "stripe" | "solana";
-  type?: "rent_compute" | "refund_compute" | "rent_model" | "refund_model" | "withdraw" | "topup";
+  type?: "rent_compute" | "refund_compute" | "rent_model" | "refund_model" | "withdraw" | "topup" | "buy_workflow_template" | "sell_workflow_template";
 }
 
 const transactionSchema: JSONSchemaType<TTransaction> = {
@@ -28,7 +28,7 @@ const transactionSchema: JSONSchemaType<TTransaction> = {
     wallet_address: {type: "string", nullable: true},
     unit: {type: "string", enum: ["usdc", "usd", "sol"], nullable: true},
     network: {type: "string", enum: ["fiat", "paypal", "stripe", "solana"], nullable: true},
-    type: {type: "string", enum: ["rent_compute", "refund_compute", "rent_model", "refund_model", "withdraw", "topup"], nullable: true},
+    type: {type: "string", enum: ["rent_compute", "refund_compute", "rent_model", "refund_model", "withdraw", "topup", "buy_workflow_template", "sell_workflow_template"], nullable: true},
   },
   required: ["id", "user_id", "created_at", "updated_at"],
   additionalProperties: true,
