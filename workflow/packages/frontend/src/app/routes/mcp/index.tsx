@@ -56,7 +56,8 @@ export default function MCPPage() {
       return flowsApi
         .list({
           projectId: authenticationSession.getProjectId()!,
-          limit: 100
+          limit: 100,
+          cursor: undefined,
         })
         .then((flows) => {
           const flowsData = flows.data.filter(
@@ -263,7 +264,6 @@ export default function MCPPage() {
       <div className="w-full space-y-8">
         <div className="flex items-center gap-2">
           <TableTitle
-            beta={true}
             description={t(
               'Connect to your hosted MCP Server using any MCP client to communicate with tools',
             )}

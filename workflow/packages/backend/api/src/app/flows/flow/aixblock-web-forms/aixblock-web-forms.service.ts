@@ -8,7 +8,9 @@ import {
     ErrorCode,
     FlowId,
     FormResponse,
+    getScopeAndKey,
     isNil,
+    PieceStoreScope,
     PopulatedFlow,
     StoreEntry,
     Trigger,
@@ -56,22 +58,6 @@ function findStep(obj: Trigger, step: string) {
         obj = obj.nextAction;
     }
     return null;
-}
-
-export enum PieceStoreScope {
-    PROJECT = 'COLLECTION',
-    FLOW = 'FLOW',
-}
-
-export function getScopeAndKey(scope: string, key: string, flowId: string, flowRunId: string) {
-    switch (scope) {
-        case PieceStoreScope.PROJECT:
-            return { key: key };
-        case PieceStoreScope.FLOW:
-            return { key: `flow_${flowId}/${key}/flowRunId_${flowRunId}` };
-        default:
-            return { key: '' };
-    }
 }
 
 function getFormStoreKey(projectId: string, flowId: string, stepName: string, flowRunId: string) {

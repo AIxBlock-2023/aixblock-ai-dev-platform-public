@@ -73,9 +73,9 @@ RUN cp -r llm-editor/build/. packages/frontend/public/llm-editor
 
 RUN cp -r general-editor/build/. packages/frontend/public/general-editor
 
-RUN npx nx run-many --target=build --projects=backend-api
+RUN npm run build-embed-sdk
 
-# --configuration production
+RUN npx nx run-many --target=build --projects=backend-api
 
 RUN npx nx run-many --target=build --projects=frontend
 
@@ -98,7 +98,7 @@ RUN apt-get update && apt-get install -y nginx gettext
 # Copy Nginx configuration template
 COPY nginx.react.conf /etc/nginx/nginx.conf
 
-COPY --from=build /usr/src/app/LICENSE .
+# COPY --from=build /usr/src/app/LICENSE .
 
 RUN mkdir -p /usr/src/app/dist/packages/backend/
 RUN mkdir -p /usr/src/app/dist/packages/engine/

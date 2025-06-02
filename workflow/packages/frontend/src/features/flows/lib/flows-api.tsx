@@ -1,8 +1,8 @@
 import { t } from 'i18next';
 import {
   CreateFlowRequest,
-  Cursor,
   ErrorCode,
+  FlowGpu,
   FlowOperationRequest,
   FlowTemplate,
   FlowVersion,
@@ -25,7 +25,7 @@ import { toast, UNSAVED_CHANGES_TOAST } from '@/components/ui/use-toast';
 import { api } from '@/lib/api';
 
 export const flowsApi = {
-  list(request: Omit<ListFlowsRequest, 'cursor'> & { cursor?: Cursor | undefined }): Promise<SeekPage<PopulatedFlow>> {
+  list(request: ListFlowsRequest): Promise<SeekPage<PopulatedFlow>> {
     return api.get<SeekPage<PopulatedFlow>>('/v1/flows', request);
   },
   create(request: CreateFlowRequest) {
@@ -104,6 +104,9 @@ export const flowsApi = {
   },
   getListingCategories(): Promise<SeekPage<ListingCategoryMetadata>> {
     return api.get<SeekPage<ListingCategory>>(`/v1/flows/listing-categories`);
+  },
+  getUserGpus(): Promise<FlowGpu[]> {
+    return api.get<FlowGpu[]>(`/v1/flows/marketplace/compute/gpus`);
   },
   v2: {
     list(request: ListFlowsRequest): Promise<SeekPage<PopulatedFlow>> {

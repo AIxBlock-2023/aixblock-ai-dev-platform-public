@@ -6,8 +6,8 @@ export type Cursor = string | null
 export type SeekPage<T> = {
     next?: Cursor
     previous?: Cursor
-    data: T[]
     pageCount?: number
+    data: T[]
 }
 
 export const SeekPage = (t: TSchema): TSchema => Type.Object({

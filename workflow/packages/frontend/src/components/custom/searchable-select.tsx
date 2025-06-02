@@ -1,8 +1,18 @@
 import deepEqual from 'deep-equal';
 import { t } from 'i18next';
+import { size } from 'lodash';
 import { Check, ChevronsUpDown, RefreshCcw, X } from 'lucide-react';
 import React, { useEffect, useRef, useState } from 'react';
+import {
+  DropdownProperty,
+  MultiSelectDropdownProperty,
+} from 'workflow-blocks-framework';
 
+import { useEmbedding } from '../embed-provider';
+import { Button } from '../ui/button';
+import { ScrollArea } from '../ui/scroll-area';
+
+import SelectModelEmptyResult from '@/app/components/select-model-empty-result';
 import { SelectUtilButton } from '@/components/custom/select-util-button';
 import {
   Command,
@@ -18,9 +28,6 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover';
 import { cn } from '@/lib/utils';
-
-import { Button } from '../ui/button';
-import { ScrollArea } from '../ui/scroll-area';
 
 type SelectOption<T> = {
   value: T;
@@ -41,6 +48,9 @@ type SearchableSelectProps<T> = {
   onClose?: () => void;
   triggerClassName?: string;
   valuesRendering?: (value: T) => React.ReactNode;
+  property?:
+    | DropdownProperty<any, boolean>
+    | MultiSelectDropdownProperty<unknown, boolean>;
 };
 
 export const SearchableSelect = <T extends React.Key>({
@@ -56,7 +66,9 @@ export const SearchableSelect = <T extends React.Key>({
   onClose,
   triggerClassName,
   valuesRendering,
+  property,
 }: SearchableSelectProps<T>) => {
+  const { embedState } = useEmbedding();
   const triggerRef = useRef<HTMLButtonElement>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [open, setOpen] = useState(false);
@@ -109,6 +121,29 @@ export const SearchableSelect = <T extends React.Key>({
     const option = options[optionIndex];
     onChange(option.value);
   };
+
+  const linkToModelMarketplace = (property as DropdownProperty<any, boolean>)
+    ?.linkToModelMarketplace;
+  const showUseHuggingFaceOption = (property as DropdownProperty<any, boolean>)
+    ?.showUseHuggingFaceOption;
+  let emptyContent = null;
+  if (size(filterOptionsIndices) === 0) {
+    if (
+      embedState?.isEmbedded &&
+      (linkToModelMarketplace || showUseHuggingFaceOption)
+    ) {
+      emptyContent = (
+        <SelectModelEmptyResult
+          linkToModelMarketplace={linkToModelMarketplace}
+          showUseHuggingFaceOption={showUseHuggingFaceOption}
+          setOpen={setOpen}
+        />
+      );
+    } else {
+      emptyContent = <CommandEmpty>{t('No results found.')}</CommandEmpty>;
+    }
+  }
+
   return (
     <Popover
       modal={true}
@@ -142,7 +177,6 @@ export const SearchableSelect = <T extends React.Key>({
             aria-expanded={open}
             className={cn('w-full justify-between w-full', triggerClassName)}
             onClick={(e) => {
-              console.log('clicked');
               setOpen((prev) => !prev);
               e.preventDefault();
             }}
@@ -199,10 +233,7 @@ export const SearchableSelect = <T extends React.Key>({
               setSearchTerm(e);
             }}
           />
-          {filterOptionsIndices.length === 0 && (
-            <CommandEmpty>{t('No results found.')}</CommandEmpty>
-          )}
-
+          {emptyContent}
           <CommandGroup>
             <CommandList>
               <ScrollArea

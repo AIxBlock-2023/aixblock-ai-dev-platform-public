@@ -20,7 +20,11 @@ import {
 } from 'workflow-shared'
 import { blockMetadataService } from '../../blocks/block-metadata-service'
 
-const loopSettingsValidator = TypeCompiler.Compile(LoopOnItemsActionSettings)
+const loopSettingsValidator = TypeCompiler.Compile(Type.Intersect([LoopOnItemsActionSettings, Type.Object({
+    items: Type.String({
+        minLength: 1,
+    }),
+})]))
 const routerSettingsValidator = TypeCompiler.Compile(RouterActionSettingsWithValidation)
 
 type ValidationResult = {
@@ -227,6 +231,11 @@ function buildSchema(props: PiecePropertyMap): TSchema {
                 propsSchema[name] = Type.Optional(
                     Type.Union([Type.Null(), Type.Undefined(), Type.Never(), Type.Unknown()]),
                 )
+                break
+            case PropertyType.COPY_TEXT:
+                propsSchema[name] = Type.String({
+                    fieldKey: ''
+                })
                 break
             case PropertyType.DATE_TIME:
             case PropertyType.SHORT_TEXT:

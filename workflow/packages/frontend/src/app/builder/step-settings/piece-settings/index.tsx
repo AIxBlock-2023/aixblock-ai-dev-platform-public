@@ -1,8 +1,8 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 
 import { Skeleton } from '@/components/ui/skeleton';
 import { flagsHooks } from '@/hooks/flags-hooks';
-import { ApFlagId, isNil, PieceAction, PieceActionSettings, PieceTrigger, PieceTriggerSettings } from 'workflow-shared';
+import { ApFlagId, eventBus, EventBusTypes, isNil, PieceAction, PieceActionSettings, PieceTrigger, PieceTriggerSettings } from 'workflow-shared';
 
 import { AutoPropertiesFormComponent } from '../../piece-properties/auto-properties-form';
 import { useStepSettingsContext } from '../step-settings-context';
@@ -29,6 +29,8 @@ const PieceSettings = React.memo((props: PieceSettingsProps) => {
     const selectedAction = actionName ? pieceModel?.actions[actionName] : undefined;
     const triggerName = (props.step.settings as PieceTriggerSettings).triggerName;
     const selectedTrigger = triggerName ? pieceModel?.triggers[triggerName] : undefined;
+
+    const [outputData, setOutputData] = useState<any>({});
 
     const actionPropsWithoutAuth = removeAuthFromProps(selectedAction?.props ?? {});
     const triggerPropsWithoutAuth = removeAuthFromProps(selectedTrigger?.props ?? {});
@@ -58,6 +60,12 @@ const PieceSettings = React.memo((props: PieceSettingsProps) => {
         webhookTimeoutSeconds: webhookTimeoutSeconds?.toString() ?? '',
     };
 
+    useEffect(() => {
+        eventBus.on(EventBusTypes.OUTPUT_STEP_DATA, (data) => {
+            setOutputData(data);
+        })
+    }, [])
+
     const showAuthForAction = !isNil(selectedAction) && (selectedAction.requireAuth ?? true);
     const showAuthForTrigger = !isNil(selectedTrigger) && (selectedTrigger.requireAuth ?? true);
     return (
@@ -84,6 +92,9 @@ const PieceSettings = React.memo((props: PieceSettingsProps) => {
                             disabled={props.readonly}
                             useMentionTextInput={true}
                             markdownVariables={markdownVariables}
+                            flowId={props.flowId}
+                            flowRunId={props.flowRunId}
+                            outputData={outputData}
                         ></AutoPropertiesFormComponent>
                     )}
                     {selectedTrigger && (
@@ -95,6 +106,9 @@ const PieceSettings = React.memo((props: PieceSettingsProps) => {
                             allowDynamicValues={true}
                             disabled={props.readonly}
                             markdownVariables={markdownVariables}
+                            flowId={props.flowId}
+                            flowRunId={props.flowRunId}
+                            outputData={outputData}
                         ></AutoPropertiesFormComponent>
                     )}
                 </>

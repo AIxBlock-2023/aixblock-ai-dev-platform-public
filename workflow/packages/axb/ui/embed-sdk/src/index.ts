@@ -8,6 +8,7 @@ export enum WorkflowClientEventName {
   CLIENT_AUTHENTICATION_FAILED = 'CLIENT_AUTHENTICATION_FAILED',
   CLIENT_CONFIGURATION_FINISHED = 'CLIENT_CONFIGURATION_FINISHED',
   CLIENT_CONNECTION_PIECE_NOT_FOUND = 'CLIENT_CONNECTION_PIECE_NOT_FOUND',
+  CLIENT_BUILDER_HOME_BUTTON_CLICKED = 'CLIENT_BUILDER_HOME_BUTTON_CLICKED',
 }
 export interface WorkflowClientInit {
   type: WorkflowClientEventName.CLIENT_INIT;
@@ -54,6 +55,12 @@ export interface WorkflowNewConnectionDialogClosed {
   type: WorkflowClientEventName.CLIENT_NEW_CONNECTION_DIALOG_CLOSED;
   data: { connection?: { id: string; name: string } };
 }
+export interface WorkflowBuilderHomeButtonClicked {
+  type: WorkflowClientEventName.CLIENT_BUILDER_HOME_BUTTON_CLICKED;
+  data: {
+    route: string;
+  };
+}
 
 type IframeWithWindow = HTMLIFrameElement & { contentWindow: Window };
 
@@ -86,13 +93,15 @@ export interface WorkflowVendorInit {
     hideSidebar: boolean;
     hideLogoInBuilder?: boolean;
     hideFlowNameInBuilder?: boolean;
-    disableNavigationInBuilder: boolean;
+    disableNavigationInBuilder: boolean | 'keep_home_button_only';
     hideFolders?: boolean;
     sdkVersion?: string;
     jwtToken?: string; // Added jwtToken here
     initialRoute?: string       //previously initialRoute was optional
     fontUrl?: string;
     fontFamily?: string;
+    hideExportAndImportFlow?: boolean;
+    emitHomeButtonClickedEvent?: boolean;
   };
 }
 // We used to send JWT in query params, now we send it in local storage
@@ -118,24 +127,46 @@ type newWindowFeatures = {
   top?: number,
   left?: number,
 }
+type EmbeddingParam = {
+  containerId?: string;
+  styling?: {
+    fontUrl?: string;
+    fontFamily?: string;
+  };
+  builder?: {
+    disableNavigation?: boolean;
+    hideLogo?: boolean;
+    hideFlowName?: boolean;
+    homeButtonClickedHandler?: (data: {
+      route: string;
+    }) => void;
+  };
+  dashboard?: {
+    hideSidebar?: boolean;
+  };
+  hideExportAndImportFlow?: boolean;
+  hideFolders?: boolean;
+  navigation?: {
+    handler?: (data: { route: string }) => void;
+  }
+}
+type ConfigureParams = {
+  prefix?: string;
+  instanceUrl: string;
+  jwtToken: string;
+  embedding?: EmbeddingParam;
+}
+
 type RequestMethod = Required<Parameters<typeof fetch>>[1]['method'];
-export const _AP_MANAGED_TOKEN_LOCAL_STORAGE_KEY = "ap_managed_token"
+export const _AP_MANAGED_TOKEN_LOCAL_STORAGE_KEY = "axb_managed_token"
 class WorkflowEmbedded {
-  readonly _sdkVersion = "0.3.6";
+  readonly _sdkVersion = "0.4.1";
   _prefix = '';
   _instanceUrl = '';
-  _hideSidebar = false;
-  _hideFolders = false;
-  _hideLogoInBuilder = false;
-  _hideFlowNameInBuilder = false;
   //this is used to authenticate embedding for the first time
   _jwtToken = '';
-  _disableNavigationInBuilder = true;
-  _fontUrl?: string;
-  _fontFamily?: string;
   _resolveNewConnectionDialogClosed?: (result: WorkflowNewConnectionDialogClosed['data']) => void;
   _dashboardAndBuilderIframeWindow?: Window;
-  _navigationHandler?: (data: { route: string }) => void;
   _rejectNewConnectionDialogClosed?: (error: unknown) => void;
   _handleVendorNavigation?: (data: { route: string }) => void;
   _handleClientNavigation?: (data: { route: string }) => void;
@@ -148,48 +179,17 @@ class WorkflowEmbedded {
     platformId:string,
     projectId:string
   };
+  _embeddingState?: EmbeddingParam;
   configure({
     prefix,
     jwtToken,
     instanceUrl,
     embedding,
-  }: {
-    prefix?: string;
-    instanceUrl: string;
-    jwtToken: string;
-    embedding?: {
-      containerId?: string;
-      styling?: {
-        fontUrl?: string;
-        fontFamily?: string;
-      };
-      builder?: {
-        disableNavigation?: boolean;
-        hideLogo?: boolean;
-        hideFlowName?: boolean;
-      };
-      dashboard?: {
-        hideSidebar?: boolean;
-      };
-      hideFolders?: boolean;
-      navigation?: {
-        handler?: (data: { route: string }) => void;
-      }
-    };
-  }) {
+  }: ConfigureParams) {
     this._prefix = prefix || '/';
-    this._hideSidebar = embedding?.dashboard?.hideSidebar || false;
     this._instanceUrl = this._removeTrailingSlashes(instanceUrl);
-    this._disableNavigationInBuilder =
-      embedding?.builder?.disableNavigation ?? false;
-    this._hideFolders = embedding?.hideFolders ?? false;
-    this._hideLogoInBuilder = embedding?.builder?.hideLogo ?? false;
-    this._hideFlowNameInBuilder = embedding?.builder?.hideFlowName ?? false;
     this._jwtToken = jwtToken;
-    this._fontUrl = embedding?.styling?.fontUrl;
-    this._fontFamily = embedding?.styling?.fontFamily;
-    this._navigationHandler = embedding?.navigation?.handler;
-    this.getEmbeddingAuth({jwtToken});
+    this._embeddingState = embedding;
     if (embedding?.containerId) {
       return this._initializeBuilderAndDashboardIframe({
         containerSelector: `#${embedding.containerId}`
@@ -221,6 +221,7 @@ class WorkflowEmbedded {
             }).contentWindow;
             this._dashboardAndBuilderIframeWindow = iframeWindow;
             this._checkForClientRouteChanges(iframeWindow);
+            this._checkForBuilderHomeButtonClicked(iframeWindow);
           }
           else {
             reject({
@@ -247,15 +248,17 @@ class WorkflowEmbedded {
               type: WorkflowVendorEventName.VENDOR_INIT,
               data: {
                 prefix: this._prefix,
-                hideSidebar: this._hideSidebar,
-                disableNavigationInBuilder: this._disableNavigationInBuilder,
-                hideFolders: this._hideFolders,
-                hideLogoInBuilder: this._hideLogoInBuilder,
-                hideFlowNameInBuilder: this._hideFlowNameInBuilder,
+                hideSidebar: this._embeddingState?.dashboard?.hideSidebar ?? false,
+                disableNavigationInBuilder: this._embeddingState?.builder?.disableNavigation ?? false,
+                hideFolders: this._embeddingState?.hideFolders ?? false,
+                hideLogoInBuilder: this._embeddingState?.builder?.hideLogo ?? false,
+                hideFlowNameInBuilder: this._embeddingState?.builder?.hideFlowName ?? false,
                 jwtToken: this._jwtToken,
                 initialRoute,
-                fontUrl: this._fontUrl,
-                fontFamily: this._fontFamily,
+                fontUrl: this._embeddingState?.styling?.fontUrl,
+                fontFamily: this._embeddingState?.styling?.fontFamily,
+                hideExportAndImportFlow: this._embeddingState?.hideExportAndImportFlow ?? false,
+                emitHomeButtonClickedEvent: this._embeddingState?.builder?.homeButtonClickedHandler !== undefined,
               },
             };
             targetWindow.postMessage(apEvent, '*');
@@ -276,7 +279,7 @@ class WorkflowEmbedded {
     initialRoute: string,
     callbackAfterConfigurationFinished?: () => void
   }): IframeWithWindow {
-    const iframe = this._createIframe({ src: `${this._instanceUrl}/embed` });
+    const iframe = this._createIframe({ src: `${this._instanceUrl}/embed?currentDate=${Date.now()}` });
     iframeContainer.appendChild(iframe);
     if (!this._doesFrameHaveWindow(iframe)) {
       this._errorCreator('iframe window not accessible');
@@ -428,15 +431,22 @@ class WorkflowEmbedded {
             routeWithPrefix = '/' + routeWithPrefix;
           }
 
-          if (this._navigationHandler) {
-
-            this._navigationHandler({ route: routeWithPrefix });
+          if (this._embeddingState?.navigation?.handler) {
+            this._embeddingState.navigation.handler({ route: routeWithPrefix });
           }
 
         }
       }
     );
   };
+
+  private _checkForBuilderHomeButtonClicked = (source: Window) => {
+    window.addEventListener('message', (event: MessageEvent<WorkflowBuilderHomeButtonClicked>) => {
+      if (event.data.type === WorkflowClientEventName.CLIENT_BUILDER_HOME_BUTTON_CLICKED && event.source === source) {
+        this._embeddingState?.builder?.homeButtonClickedHandler?.(event.data.data);
+      }
+    });
+  }
 
 
 
@@ -558,17 +568,17 @@ class WorkflowEmbedded {
   private _logger() {
     return{
       log: (message: string, ...args: any[]) => {
-        console.log(`${message}`, ...args)
+        console.log(`Workflow: ${message}`, ...args)
       },
       error: (message: string, ...args: any[]) => {
-        console.error(`${message}`, ...args)
+        console.error(`Workflow: ${message}`, ...args)
       },
       warn: (message: string, ...args: any[]) => {
-        console.warn(`${message}`, ...args)
+        console.warn(`Workflow: ${message}`, ...args)
       }
     }
   }
-  private async getEmbeddingAuth(params:{jwtToken:string} | undefined) {
+  private async fetchEmbeddingAuth(params:{jwtToken:string} | undefined) {
     if(this._embeddingAuth) {
       return this._embeddingAuth;
     }
@@ -578,7 +588,7 @@ class WorkflowEmbedded {
     }
     const response = await this.request({path: '/managed-authn/external-token', method: 'POST', body: {
       externalAccessToken: jwtToken,
-    }})
+    }}, false)
     this._embeddingAuth = {
       userJwtToken: response.token,
       platformId: response.platformId,
@@ -594,13 +604,13 @@ class WorkflowEmbedded {
   }
 
   async getMcpTools():Promise<{pieces:McpPiece[]}> {
-    return this.request({path: '/mcp-pieces', method: 'GET'})
+    return this.request({path: '/mcp-blocks', method: 'GET'})
   }
 
   async addMcpTool(params:{pieceName:string, connectionId?:string, status?:McpPieceStatus}) {
     const status = params.status ?? McpPieceStatus.ENABLED;
     const mcp = await this.getMcpInfo();
-    return this.request({path: '/mcp-pieces', method: 'POST', body: {
+    return this.request({path: '/mcp-blocks', method: 'POST', body: {
       pieceName: params.pieceName,
       connectionId: params.connectionId,
       status,
@@ -615,7 +625,7 @@ class WorkflowEmbedded {
     {
       return this.getMcpInfo();
     }
-    return this.request({path: `/mcp-pieces/${pieceToUpdate.id}`, method: 'POST', body: {
+    return this.request({path: `/mcp-blocks/${pieceToUpdate.id}`, method: 'POST', body: {
       pieceName,
       status: status ?? pieceToUpdate.status,
       connectionId: connectionId ?? pieceToUpdate.connectionId,
@@ -629,18 +639,19 @@ class WorkflowEmbedded {
     if(!pieceToRemove) {
       return this.getMcpInfo();
     }
-    return this.request({path: `/mcp-pieces/${pieceToRemove.id}`, method: 'DELETE'})
+    return this.request({path: `/mcp-blocks/${pieceToRemove.id}`, method: 'DELETE'})
   }
 
 
-  request({path, method, body, queryParams}:{path:string, method: RequestMethod, body?:Record<string, unknown>, queryParams?:Record<string, string>}) {
+ async request({path, method, body, queryParams}:{path:string, method: RequestMethod, body?:Record<string, unknown>, queryParams?:Record<string, string>}, useJwtToken = true) {
     const headers:Record<string, string> = {
     }
     if(body) {
       headers['Content-Type'] = 'application/json'
     }
-    if(this._embeddingAuth) {
-      headers['Authorization'] = `Bearer ${this._embeddingAuth.userJwtToken}`
+    if(useJwtToken) {
+      const embeddingAuth = await this.fetchEmbeddingAuth({jwtToken: this._jwtToken});
+      headers['Authorization'] = `Bearer ${embeddingAuth.userJwtToken}`
     }
     const queryParamsString = queryParams ? `?${new URLSearchParams(queryParams).toString()}` : '';
      return fetch(`${this._removeTrailingSlashes(this._instanceUrl)}/api/v1/${this._removeStartingSlashes(path)}${queryParamsString}`, {

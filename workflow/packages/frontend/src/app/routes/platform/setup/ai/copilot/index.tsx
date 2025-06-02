@@ -62,10 +62,10 @@ const CopilotSetup = () => {
             <div className="text-sm text-muted-foreground">
               {configuredProvider
                 ? t(
-                    'Copilot is configured and ready to help you build flows faster using AI.',
+                    'Copilot is configured and ready to help your users build flows faster using AI.',
                   )
                 : t(
-                    'Configure AIxBlock Copilot to help you build flows faster using AI.',
+                    'Configure AIxBlock Copilot to help your users build flows faster using AI.',
                   )}
             </div>
           </div>

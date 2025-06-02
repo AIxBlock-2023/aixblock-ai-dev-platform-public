@@ -19,7 +19,6 @@ import {
 } from 'workflow-shared'
 import { ApplicationEventName } from '../../../../../axb/shared/src/lib/audit-events/index'
 import { eventsHooks } from '../helper/application-events'
-import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE } from '../helper/pagination'
 import { securityHelper } from '../helper/security-helper'
 import { appConnectionService } from './app-connection-service/app-connection-service'
 
@@ -64,7 +63,7 @@ export const appConnectionController: FastifyPluginCallbackTypebox = (app, _opts
     })
 
     app.get('/', ListAppConnectionsRequest, async (request): Promise<SeekPage<AppConnectionWithoutSensitiveData>> => {
-        const { displayName, blockName, status, cursor, limit, page, scope } = request.query
+        const { displayName, blockName, status, cursor, limit, scope } = request.query
 
         const appConnections = await appConnectionService(request.log).list({
             blockName,
@@ -75,7 +74,6 @@ export const appConnectionController: FastifyPluginCallbackTypebox = (app, _opts
             projectId: request.principal.projectId,
             cursorRequest: cursor ?? null,
             limit: limit ?? DEFAULT_PAGE_SIZE,
-            page: page ?? DEFAULT_PAGE,
         })
 
         const appConnectionsWithoutSensitiveData: SeekPage<AppConnectionWithoutSensitiveData> = {
@@ -120,6 +118,8 @@ export const appConnectionController: FastifyPluginCallbackTypebox = (app, _opts
 
     done()
 }
+
+const DEFAULT_PAGE_SIZE = 10
 
 
 const UpsertAppConnectionRequest = {

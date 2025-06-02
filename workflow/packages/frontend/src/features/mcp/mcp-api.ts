@@ -40,7 +40,7 @@ export const mcpApi = {
   },
   async getPieces() {
     return await api.get<{ pieces: McpBlockWithConnection[] }>(
-      `/v1/mcp-pieces`,
+      `/v1/mcp-blocks`,
     );
   },
   async addPiece({
@@ -49,7 +49,7 @@ export const mcpApi = {
     connectionId,
     status,
   }: AddPieceParams): Promise<McpWithBlocks> {
-    return await api.post(`/v1/mcp-pieces`, {
+    return await api.post(`/v1/mcp-blocks`, {
       mcpId,
       blockName,
       connectionId,
@@ -61,12 +61,12 @@ export const mcpApi = {
     connectionId,
     status,
   }: UpdatePieceParams): Promise<McpWithBlocks> {
-    return await api.post(`/v1/mcp-pieces/${pieceId}`, {
+    return await api.post(`/v1/mcp-blocks/${pieceId}`, {
       connectionId,
       status,
     });
   },
   async deletePiece(pieceId: string): Promise<McpWithBlocks> {
-    return await api.delete(`/v1/mcp-pieces/${pieceId}`);
+    return await api.delete(`/v1/mcp-blocks/${pieceId}`);
   },
 };

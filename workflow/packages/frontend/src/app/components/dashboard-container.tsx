@@ -1,5 +1,5 @@
 import { t } from 'i18next';
-import { Brain, Flag, Network, Server, Workflow } from 'lucide-react';
+import { Brain, Flag, ListTodo, Network, Server, Table2, Workflow } from 'lucide-react';
 import { createContext, useState } from 'react';
 import { Navigate } from 'react-router-dom';
 
@@ -116,25 +116,25 @@ export function DashboardContainer({
     isSubItem: false,
   };
 
-  // const tablesLink: SidebarLink = {
-  //   type: 'link',
-  //   to: authenticationSession.appendProjectRoutePrefix('/tables'),
-  //   label: t('Tables'),
-  //   icon: Table2,
-  //   showInEmbed: true,
-  //   hasPermission: checkAccess(Permission.READ_TABLE),
-  //   isSubItem: false,
-  // };
-  //
-  // const todosLink: SidebarLink = {
-  //   type: 'link',
-  //   to: authenticationSession.appendProjectRoutePrefix('/todos'),
-  //   label: t('Todos'),
-  //   icon: ListTodo,
-  //   showInEmbed: true,
-  //   hasPermission: checkAccess(Permission.READ_TODOS),
-  //   isSubItem: false,
-  // };
+  const tablesLink: SidebarLink = {
+    type: 'link',
+    to: authenticationSession.appendProjectRoutePrefix('/tables'),
+    label: t('Tables'),
+    icon: Table2,
+    showInEmbed: true,
+    hasPermission: checkAccess(Permission.READ_TABLE),
+    isSubItem: false,
+  };
+
+  const todosLink: SidebarLink = {
+    type: 'link',
+    to: authenticationSession.appendProjectRoutePrefix('/todos'),
+    label: t('Todos'),
+    icon: ListTodo,
+    showInEmbed: true,
+    hasPermission: checkAccess(Permission.READ_TODOS),
+    isSubItem: false,
+  };
 
   const aiProvidersLink: SidebarLink = {
     type: 'link',
@@ -146,13 +146,7 @@ export function DashboardContainer({
     isSubItem: false,
   };
 
-  const items: SidebarItem[] = [
-      flowsLink,
-      runsLink,
-      connectionsLink,
-      mcpLink,
-      aiProvidersLink,
-  ]
+  const items: SidebarItem[] = [flowsLink, runsLink, connectionsLink, mcpLink, tablesLink, todosLink, aiProvidersLink]
     .filter(embedFilter)
     .filter(permissionFilter)
     .filter(filterAlerts);

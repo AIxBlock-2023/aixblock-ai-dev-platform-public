@@ -1,14 +1,14 @@
 import { CaretDownIcon, PlusIcon } from '@radix-ui/react-icons';
 import { WorkflowClientEventName } from 'axb-embed-sdk';
-import { useCallback, useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
-import { PieceProperty } from 'workflow-blocks-framework';
+import { LoaderCircleIcon } from 'lucide-react';
+import { useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+
+import { useStepSettingsContext } from '../builder/step-settings/step-settings-context';
 
 import { useEmbedding } from '@/components/embed-provider';
-import { SelectOption, useAIxBlock } from '@/hooks/aixblock-hooks';
+import { SelectOption } from '@/hooks/aixblock-hooks';
 import { parentWindow } from '@/lib/utils';
-import { forEach, size } from 'lodash';
-import { LoaderCircleIcon } from 'lucide-react';
 
 export const formatBytes = (bytes: number, decimals?: number) => {
   if (!bytes) return '0 B';
@@ -23,46 +23,21 @@ export const formatBytes = (bytes: number, decimals?: number) => {
 };
 
 type TrainLinkToMarketPropType = {
-  property: PieceProperty;
+  handleGetListCompute: (projectId: string) => void;
+  isFetchCpu: boolean;
+  listCompute: SelectOption[];
 };
 
-/**
- * @description Component hiển thị giao diện link tới market place của `Train` Action
- * @author duc&#64;aixblock
- */
-function TrainLinkToMarket({ property }: TrainLinkToMarketPropType) {
-  const [listCompute, setListCompute] = useState<SelectOption[]>([]);
+function TrainLinkToMarket({
+  handleGetListCompute,
+  isFetchCpu,
+  listCompute,
+}: TrainLinkToMarketPropType) {
   const [isExpanded, setIsExpanded] = useState(false);
   const { embedState } = useEmbedding();
   const params = useParams();
-  const { getCpus, isFetchCpu } = useAIxBlock();
-
-  // Xử lý lấy danh sách compute
-  const handleGetListCompute = useCallback(
-    async (projectId: string) => {
-      const result = await getCpus(projectId);
-      const listSelect: SelectOption[] = [];
-      forEach(result, (compute) => {
-        if (compute.compute_cpu && compute.compute_cpu.cpu) {
-          listSelect.push({
-            value: 'compute_cpu',
-            label: `${compute.compute_cpu.cpu} / ${compute.compute_name}`,
-          });
-        }
-        if (size(compute.compute_gpus) > 0) {
-          forEach(compute.compute_gpus, (gpu) => {
-            listSelect.push({
-              value: 'compute_gpus',
-              label: `${gpu.gpu_name} / ${compute.compute_name}`,
-            });
-          });
-        }
-      });
-      setListCompute(listSelect);
-    },
-    [getCpus],
-  );
-
+  const navigate = useNavigate();
+  const { selectedStep } = useStepSettingsContext();
   const handleClientRouteChange = (route: string) => {
     parentWindow.postMessage(
       {
@@ -76,10 +51,9 @@ function TrainLinkToMarket({ property }: TrainLinkToMarketPropType) {
     );
   };
 
-  // Thực hiện call api để lấy danh sách compute của user
-  useEffect(() => {
-    if (embedState.isEmbedded) handleGetListCompute('0');
-  }, [handleGetListCompute, embedState, params]);
+  const handleGoViewGpuFlow = () => {
+    navigate(`step/${selectedStep.name}`);
+  };
 
   const hasComputes = listCompute.length > 0;
 
@@ -87,12 +61,6 @@ function TrainLinkToMarket({ property }: TrainLinkToMarketPropType) {
 
   return (
     <div>
-      <button
-        onClick={() => handleClientRouteChange('/marketplace/models')}
-        className="self-start text-muted-foreground text-xs hover:text-primary underline mt-1"
-      >
-        Go to Model Marketplace
-      </button>
       <div className="mt-2">
         {/* Khối chung có border bo tròn */}
         <div
@@ -110,7 +78,7 @@ function TrainLinkToMarket({ property }: TrainLinkToMarketPropType) {
                   ${isExpanded ? 'rounded-t-md' : 'rounded-md'}`}
             onClick={() => hasComputes && setIsExpanded(!isExpanded)}
           >
-            <div className="flex">
+            <div className="flex items-center">
               <span className="text-sm text-muted-foreground">
                 {isFetchCpu ? (
                   <div className="flex justify-center ">
@@ -132,6 +100,17 @@ function TrainLinkToMarket({ property }: TrainLinkToMarketPropType) {
                 >
                   Refresh
                 </button>
+              )}
+              {!isFetchCpu && hasComputes && (
+                <div className="hidden group-hover:inline-flex transition-all duration-200 text-xs text-primary ">
+                  <span className="mx-1">|</span>
+                  <button
+                    className="hover:underline items-center"
+                    onClick={handleGoViewGpuFlow}
+                  >
+                    View
+                  </button>
+                </div>
               )}
             </div>
             <div className="flex flex-row">

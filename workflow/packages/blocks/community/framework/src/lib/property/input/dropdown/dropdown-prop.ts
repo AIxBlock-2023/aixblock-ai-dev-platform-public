@@ -21,6 +21,7 @@ export type DropdownProperty<T, R extends boolean> = BasePropertySchema & {
   refreshers: string[];
   refreshOnSearch?: boolean;
   linkToModelMarketplace?: boolean;
+  showUseHuggingFaceOption?: boolean;
   options: DynamicDropdownOptions<T>;
 } & TPropertyValue<T, PropertyType.DROPDOWN, R>;
 

@@ -30,6 +30,8 @@ import { AllowOnlyLoggedInUserOnlyGuard } from '../components/allow-logged-in-us
 import { DashboardContainer } from '../components/dashboard-container';
 import ProjectSettingsLayout from '../components/project-settings-layout';
 import NotFoundPage from '../routes/404-page';
+import { ApTablesPage } from '../routes/ap-tables';
+import { ApTableEditorPage } from '../routes/ap-tables/id';
 import AuthenticatePage from '../routes/authenticate';
 import { ChangePasswordPage } from '../routes/change-password';
 import { AppConnectionsPage } from '../routes/connections';
@@ -39,12 +41,19 @@ import { FlowBuilderPage } from '../routes/flows/id';
 import { ResetPasswordPage } from '../routes/forget-password';
 import { FormPage } from '../routes/forms';
 import MCPPage from '../routes/mcp';
+import { ProjectReleasesPage } from '../routes/project-release';
 import ViewRelease from '../routes/project-release/view-release';
 import { FlowRunPage } from '../routes/runs/id';
+import AlertsPage from '../routes/settings/alerts';
+import AppearancePage from '../routes/settings/appearance';
+import { EnvironmentPage } from '../routes/settings/environment';
 import GeneralPage from '../routes/settings/general';
+import TeamPage from '../routes/settings/team';
 import { SignInPage } from '../routes/sign-in';
 import { SignUpPage } from '../routes/sign-up';
 import { ShareTemplatePage } from '../routes/templates/share-template';
+import { TodosPage } from '../routes/todos';
+import { TodoTestingPage } from '../routes/todos/id';
 
 import AIProvidersProjectPage from '@/app/routes/ai-providers';
 import { AIxBlockAssignTasks } from '../routes/aixblock-assign-tasks';
@@ -52,6 +61,7 @@ import { AIxBlockCustomMultimodal } from '../routes/aixblock-custom-multimodal';
 import { AIxBlockTasks } from '../routes/aixblock-tasks';
 import { AIxBlockWebFormPage } from '../routes/aixblock-web-forms';
 import { FlowPreviewPage } from '../routes/flows/id/Preview';
+import UserGpuPage from '../routes/user-gpu';
 import { AfterImportFlowRedirect } from './after-import-flow-redirect';
 import { DefaultRoute } from './default-route';
 import { RoutePermissionGuard } from './permission-guard';
@@ -111,8 +121,20 @@ const routes = [
     element: (
       <AllowOnlyLoggedInUserOnlyGuard>
         <RoutePermissionGuard permission={Permission.READ_FLOW}>
-          <PageTitle title="Preivew Flow">
+          <PageTitle title="Preview Flow">
             <FlowPreviewPage />
+          </PageTitle>
+        </RoutePermissionGuard>
+      </AllowOnlyLoggedInUserOnlyGuard>
+    ),
+  }),
+  ...ProjectRouterWrapper({
+    path: '/flows/:flowId/step/:stepId',
+    element: (
+      <AllowOnlyLoggedInUserOnlyGuard>
+        <RoutePermissionGuard permission={Permission.READ_FLOW}>
+          <PageTitle title="Action Gpu">
+            <UserGpuPage />
           </PageTitle>
         </RoutePermissionGuard>
       </AllowOnlyLoggedInUserOnlyGuard>
@@ -219,6 +241,32 @@ const routes = [
     ),
   }),
   ...ProjectRouterWrapper({
+    path: '/tables',
+    element: (
+      <DashboardContainer>
+        <RoutePermissionGuard permission={Permission.READ_TABLE}>
+          <PageTitle title="Tables">
+            <ApTablesPage />
+          </PageTitle>
+        </RoutePermissionGuard>
+      </DashboardContainer>
+    ),
+  }),
+  ...ProjectRouterWrapper({
+    path: '/tables/:tableId',
+    element: (
+      <RoutePermissionGuard permission={Permission.READ_TABLE}>
+        <DashboardContainer removeGutters removeBottomPadding>
+          <PageTitle title="Table">
+            <ApTableStateProvider>
+              <ApTableEditorPage />
+            </ApTableStateProvider>
+          </PageTitle>
+        </DashboardContainer>
+      </RoutePermissionGuard>
+    ),
+  }),
+  ...ProjectRouterWrapper({
     path: '/connections',
     element: (
       <DashboardContainer>
@@ -228,6 +276,34 @@ const routes = [
           </PageTitle>
         </RoutePermissionGuard>
       </DashboardContainer>
+    ),
+  }),
+  ...ProjectRouterWrapper({
+    path: '/releases',
+    element: (
+      <DashboardContainer>
+        <PageTitle title="Releases">
+          <ProjectReleasesPage />
+        </PageTitle>
+      </DashboardContainer>
+    ),
+  }),
+  ...ProjectRouterWrapper({
+    path: '/todos',
+    element: (
+      <DashboardContainer>
+        <PageTitle title="Todos">
+          <TodosPage />
+        </PageTitle>
+      </DashboardContainer>
+    ),
+  }),
+  ...ProjectRouterWrapper({
+    path: '/todos/:todoId',
+    element: (
+      <PageTitle title="Todo Testing">
+        <TodoTestingPage />
+      </PageTitle>
     ),
   }),
   ...ProjectRouterWrapper({
@@ -289,6 +365,32 @@ const routes = [
     ),
   },
   ...ProjectRouterWrapper({
+    path: '/settings/alerts',
+    element: (
+      <DashboardContainer>
+        <RoutePermissionGuard permission={Permission.READ_ALERT}>
+          <PageTitle title="Alerts">
+            <ProjectSettingsLayout>
+              <AlertsPage />
+            </ProjectSettingsLayout>
+          </PageTitle>
+        </RoutePermissionGuard>
+      </DashboardContainer>
+    ),
+  }),
+  ...ProjectRouterWrapper({
+    path: '/settings/appearance',
+    element: (
+      <DashboardContainer>
+        <PageTitle title="Appearance">
+          <ProjectSettingsLayout>
+            <AppearancePage />
+          </ProjectSettingsLayout>
+        </PageTitle>
+      </DashboardContainer>
+    ),
+  }),
+  ...ProjectRouterWrapper({
     path: '/settings/general',
     element: (
       <DashboardContainer>
@@ -312,6 +414,40 @@ const routes = [
       </DashboardContainer>
     ),
   }),
+  ...ProjectRouterWrapper({
+    path: '/settings/team',
+    element: (
+      <DashboardContainer>
+        <RoutePermissionGuard permission={Permission.READ_PROJECT_MEMBER}>
+          <PageTitle title="Team">
+            <ProjectSettingsLayout>
+              <TeamPage />
+            </ProjectSettingsLayout>
+          </PageTitle>
+        </RoutePermissionGuard>
+      </DashboardContainer>
+    ),
+  }),
+  {
+    path: '/team',
+    element: <Navigate to="/settings/team" replace></Navigate>,
+  },
+
+  ...ProjectRouterWrapper({
+    path: '/settings/environments',
+    element: (
+      <DashboardContainer>
+        <RoutePermissionGuard permission={Permission.READ_PROJECT_RELEASE}>
+          <PageTitle title="Environments">
+            <ProjectSettingsLayout>
+              <EnvironmentPage />
+            </ProjectSettingsLayout>
+          </PageTitle>
+        </RoutePermissionGuard>
+      </DashboardContainer>
+    ),
+  }),
+
   ...ProjectRouterWrapper({
     path: '/mcp',
     element: (

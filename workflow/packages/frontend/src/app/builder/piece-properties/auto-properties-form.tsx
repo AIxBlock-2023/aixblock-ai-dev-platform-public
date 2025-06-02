@@ -21,6 +21,7 @@ import { isNil } from 'workflow-shared';
 
 import { MultiSelectPieceProperty } from '../../../components/custom/multi-select-block-property';
 
+import { CopyTextProperty } from '@/components/custom/copy-text-property';
 import { ArrayPieceProperty } from './array-property';
 import { AutoFormFieldWrapper } from './auto-form-field-wrapper';
 import { BuilderJsonEditorWrapper } from './builder-json-wrapper';
@@ -37,6 +38,9 @@ type AutoFormProps = {
   markdownVariables?: Record<string, string>;
   useMentionTextInput: boolean;
   disabled?: boolean;
+  flowRunId?: string;
+  flowId?: string;
+  outputData?: any;
 };
 
 const AutoPropertiesFormComponent = React.memo(
@@ -47,6 +51,9 @@ const AutoPropertiesFormComponent = React.memo(
     prefixValue,
     disabled,
     useMentionTextInput,
+    flowId,
+    flowRunId,
+    outputData
   }: AutoFormProps) => {
     const form = useFormContext();
     return (
@@ -68,6 +75,9 @@ const AutoPropertiesFormComponent = React.memo(
                     markdownVariables: markdownVariables ?? {},
                     useMentionTextInput: useMentionTextInput,
                     disabled: disabled ?? false,
+                    flowId: flowId as string,
+                    flowRunId: flowRunId as string,
+                    outputData,
                   })
                 }
               />
@@ -88,6 +98,9 @@ type selectFormComponentForPropertyParams = {
   markdownVariables: Record<string, string>;
   useMentionTextInput: boolean;
   disabled: boolean;
+  flowId: string;
+  flowRunId: string;
+  outputData: any
 };
 
 const selectFormComponentForProperty = ({
@@ -99,6 +112,9 @@ const selectFormComponentForProperty = ({
   markdownVariables,
   useMentionTextInput,
   disabled,
+  flowId,
+  flowRunId,
+  outputData
 }: selectFormComponentForPropertyParams) => {
   switch (property.type) {
     case PropertyType.ARRAY:
@@ -246,6 +262,7 @@ const selectFormComponentForProperty = ({
             value={field.value}
             onChange={field.onChange}
             disabled={disabled}
+            property={property}
             propertyName={propertyName}
             multiple={property.type === PropertyType.MULTI_SELECT_DROPDOWN}
             showDeselect={!property.required}
@@ -272,6 +289,7 @@ const selectFormComponentForProperty = ({
               disabled={disabled}
               initialValue={field.value}
               onChange={field.onChange}
+              propertyName={propertyName}
               supportUrlPrefix={(property as ShortTextProperty<boolean>).supportUrlPrefix}
               supportDatasetIdPrefix={(property as ShortTextProperty<boolean>).supportDatasetIdPrefix}
               supportLocalPrefix={(property as ShortTextProperty<boolean>).supportLocalPrefix}
@@ -322,7 +340,26 @@ const selectFormComponentForProperty = ({
           <ColorPicker value={field.value} onChange={field.onChange} />
         </AutoFormFieldWrapper>
       );
+    case PropertyType.COPY_TEXT:
+      return (
+        <AutoFormFieldWrapper
+          property={property}
+          inputName={inputName}
+          field={field}
+          propertyName={propertyName}
+          disabled={disabled}
+          allowDynamicValues={false}
+        >
+          <CopyTextProperty
+            fieldKey={property.fieldKey}
+            flowId={flowId}
+            flowRunId={flowRunId}
+            outputData={outputData}
+          />
+        </AutoFormFieldWrapper>
+      );
   }
 };
 AutoPropertiesFormComponent.displayName = 'AutoFormComponent';
 export { AutoPropertiesFormComponent };
+

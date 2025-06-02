@@ -1,5 +1,6 @@
 import { httpClient, HttpMethod } from 'workflow-blocks-common';
-import { createAction, Property } from 'workflow-blocks-framework';
+import { createAction, Property, StoreScope } from 'workflow-blocks-framework';
+import { AIxBlockPredictMlUrl } from 'workflow-shared';
 import { aixblockAuth } from '../../..';
 
 interface ComputeGpu {
@@ -113,6 +114,8 @@ export const predict = createAction({
             description: 'Select a model to train',
             required: true,
             refreshers: [],
+            linkToModelMarketplace: true,
+            showUseHuggingFaceOption: true,
             async options({ auth }) {
                 // Fix: assert auth type for TypeScript
                 const typedAuth = auth as { apiToken: string; baseApiUrl: string };
@@ -221,6 +224,11 @@ export const predict = createAction({
             required: false,
             defaultValue: true,
         }),
+        ml_url: Property.CopyText({
+            displayName: 'ML url',
+            description: 'ML url will display in here after finished',
+            fieldKey: AIxBlockPredictMlUrl
+        })
         // token_length: Property.Number({
         //     displayName: 'Token Length',
         //     description: 'Maximum number of tokens to generate',
@@ -494,6 +502,7 @@ export const predict = createAction({
 
             console.log('Prediction request body:', JSON.stringify(bodyParams));
 
+            let ml_url = ''
             // Try prediction, if 500 error, reset ML port and retry (using try/catch)
             let predictionResponse;
             try {
@@ -506,6 +515,7 @@ export const predict = createAction({
                     queryParams: queryParams,
                     body: bodyParams
                 });
+                ml_url = mlInfo.url;
             } catch (err: any) {
                 if (err.status === 500) {
                     const { resetMlProxyUrl } = await import('../../common/ml-proxy');
@@ -520,6 +530,7 @@ export const predict = createAction({
                             queryParams: queryParams,
                             body: bodyParams
                         });
+                        ml_url = newProxyUrl;
                     } catch (err2) {
                         throw err2;
                     }
@@ -528,6 +539,10 @@ export const predict = createAction({
                 }
             }
             console.log('Prediction completed');
+
+            const key = `${AIxBlockPredictMlUrl}/flowRunId_${context.run.id}`;
+            await context.store.put(key, ml_url, StoreScope.FLOW);
+            console.log('Finished to upsert ml_url to store with key', key);
 
             // Process the response based on detected input type
             if (input_type === 'text') {

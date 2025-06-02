@@ -511,7 +511,7 @@ export const McpClientTabs = ({
   return (
     <Card
       className={`mb-8 ${
-        theme === 'dark' ? 'bg-card border-border' : 'bg-gray-50 border-border'
+        theme === 'dark' ? 'bg-card border-border' : 'bg-[#f7f6f4] border-none'
       }`}
     >
       <CardContent className="p-5 pt-5">

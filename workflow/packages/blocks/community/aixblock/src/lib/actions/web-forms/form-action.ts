@@ -1,6 +1,6 @@
 import { httpClient, HttpMethod } from 'workflow-blocks-common';
 import { createAction, PieceAuth, Property, StoreScope } from 'workflow-blocks-framework';
-import { ExecutionType, MarkdownVariant, PauseType, USE_DRAFT_QUERY_PARAM_NAME } from 'workflow-shared';
+import { AIxBlockWebFormWaitSubmit, ExecutionType, MarkdownVariant, PauseType, USE_DRAFT_QUERY_PARAM_NAME } from 'workflow-shared';
 
 const markdown = `
 ## **This plugin will support for user to customize the form and submit the form data to the flow.**
@@ -84,8 +84,8 @@ export const aixBlockWebForm = createAction({
         }),
     },
     async run(context) {
-        const approveStoreKey = `aixblock-web-form-wait-approve-link/flowRunId_${context.run.id}`;
-        const rejectStoreKey = `aixblock-web-form-wait-reject-link/flowRunId_${context.run.id}`;
+        const approveStoreKey = `${AIxBlockWebFormWaitSubmit.APPROVE_LINK}/flowRunId_${context.run.id}`;
+        const rejectStoreKey = `${AIxBlockWebFormWaitSubmit.REJECT_LINK}/flowRunId_${context.run.id}`;
 
         const flowRunId = context.run.id;
         const flowVersionId = context.flowVersionId;

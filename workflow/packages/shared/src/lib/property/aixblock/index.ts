@@ -13,6 +13,8 @@ export const AIxBlockWebFormWaitSubmit = {
     REJECT_LINK: 'aixblock-web-form-wait-reject-link',
 };
 
+export const AIxBlockPredictMlUrl = 'aixblock-predict-ml-url'
+
 export const AIxBlockTaskStatus = {
     TODO: 'todo',
     IN_PROGRESS: 'in_progress',

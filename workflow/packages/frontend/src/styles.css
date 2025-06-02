@@ -124,17 +124,6 @@
     --sidebar-accent-foreground: 240 4.8% 95.9%;
     --sidebar-border: 240 3.7% 15.9%;
     --sidebar-ring: 217.2 91.2% 59.8%;  
-
-    --sidebar-background: 0 0% 100%;
-    --sidebar-foreground: 240 7.383% 29.22%;
-    --sidebar-primary: 240 5.9% 10%;
-    --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 240 100% 97%;
-    --sidebar-accent-foreground: 240 100% 65.69%;
-    --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
-
-    --table-header-foreground: 256 5% 56%;
   }
 }
 

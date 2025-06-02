@@ -1,5 +1,4 @@
 import { t } from 'i18next';
-import { size } from 'lodash';
 import {
   ChevronDownIcon,
   ChevronUpIcon,
@@ -8,16 +7,7 @@ import {
 } from 'lucide-react';
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { ApEdition, ApFlagId } from 'workflow-shared';
 
-import { platformHooks } from '../../hooks/platform-hooks';
-
-import { ApDashboardSidebarHeader } from './ap-dashboard-sidebar-header';
-import { HelpAndFeedback } from './help-and-feedback';
-import { SidebarUser } from './sidebar-user';
-import UsageLimitsButton from './usage-limits-button';
-
-import { BetaBadge } from '@/components/custom/beta-badge';
 import {
   Collapsible,
   CollapsibleContent,
@@ -31,6 +21,7 @@ import {
   SidebarContent,
   SidebarFooter,
   SidebarGroup,
+  SidebarGroupLabel,
   SidebarMenu,
   SidebarMenuAction,
   SidebarMenuButton,
@@ -39,13 +30,19 @@ import {
   SidebarMenuSubItem,
   SidebarSeparator,
 } from '@/components/ui/sidebar-shadcn';
-import {
-  IconLineSubMenu,
-  IconLineSubMenuLast,
-} from '@/components/ui/svg/IconLineSubMenu';
 import { flagsHooks } from '@/hooks/flags-hooks';
 import { authenticationSession } from '@/lib/authentication-session';
 import { cn } from '@/lib/utils';
+import { ApEdition, ApFlagId } from 'workflow-shared';
+
+import { platformHooks } from '../../hooks/platform-hooks';
+
+import { ApDashboardSidebarHeader } from './ap-dashboard-sidebar-header';
+import { HelpAndFeedback } from './help-and-feedback';
+import { SidebarUser } from './sidebar-user';
+import UsageLimitsButton from './usage-limits-button';
+import { IconLineSubMenuLast, IconLineSubMenu } from '@/components/ui/svg/IconLineSubMenu';
+import { size } from 'lodash';
 
 type Link = {
   icon: React.ReactNode;
@@ -66,7 +63,6 @@ type CustomTooltipLinkProps = {
   isSubItem: boolean;
   isLast?: boolean;
 };
-
 export const CustomTooltipLink = ({
   to,
   label,
@@ -75,9 +71,9 @@ export const CustomTooltipLink = ({
   notification,
   locked,
   newWindow,
+  isActive,
   isSubItem,
   isLast,
-  isActive,
 }: CustomTooltipLinkProps) => {
   const location = useLocation();
 
@@ -218,7 +214,7 @@ export function SidebarComponent({
                             >
                               <SidebarMenuItem>
                                 <CollapsibleTrigger asChild>
-                                  <SidebarMenuButton className="py-0 gap-2 hover:bg-gray-200 rounded-lg transition-colors">
+                                  <SidebarMenuButton>
                                     {item.icon && (
                                       <item.icon className="size-4" />
                                     )}
@@ -312,6 +308,13 @@ export function SidebarComponent({
                 </ScrollArea>
               </SidebarContent>
               <SidebarFooter className="pb-4 gap-4">
+                {showProjectUsage && <Separator />}
+                {showProjectUsage && (
+                  <SidebarMenu>
+                    <UsageLimitsButton />
+                  </SidebarMenu>
+                )}
+                {showProjectUsage && <Separator />}
                 <SidebarUser />
               </SidebarFooter>
             </SidebarContent>

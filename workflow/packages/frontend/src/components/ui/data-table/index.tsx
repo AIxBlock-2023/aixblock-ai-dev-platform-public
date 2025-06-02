@@ -191,7 +191,7 @@ export function DataTable<
     manualPagination: true,
     getCoreRowModel: getCoreRowModel(),
     getRowId: () => uuid(),
-    pageCount: page?.pageCount ?? 0,
+    pageCount: page?.pageCount,
   });
 
   useEffect(() => {

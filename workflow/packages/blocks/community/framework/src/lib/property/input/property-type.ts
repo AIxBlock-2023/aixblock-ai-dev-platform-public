@@ -20,4 +20,5 @@ export enum PropertyType {
     FILE = 'FILE',
     CUSTOM = 'CUSTOM',
     COLOR = 'COLOR',
+    COPY_TEXT = 'COPY_TEXT',
 }

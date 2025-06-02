@@ -3,13 +3,11 @@ import deepEqual from 'deep-equal';
 import { t } from 'i18next';
 import React, { useEffect, useRef, useState } from 'react';
 import { useFormContext, useWatch } from 'react-hook-form';
-
-import { useBuilderStateContext } from '@/app/builder/builder-hooks';
-import { SearchableSelect } from '@/components/custom/searchable-select';
-import { piecesApi } from '@/features/pieces/lib/blocks-api';
 import {
+  DropdownProperty,
   DropdownState,
   ExecutePropsResult,
+  MultiSelectDropdownProperty,
   PropertyType,
 } from 'workflow-blocks-framework';
 import { Action, isNil, Trigger } from 'workflow-shared';
@@ -18,8 +16,15 @@ import { MultiSelectPieceProperty } from '../../../components/custom/multi-selec
 
 import { DynamicPropertiesErrorBoundary } from './dynamic-block-properties-error-boundary';
 
+import { useBuilderStateContext } from '@/app/builder/builder-hooks';
+import { SearchableSelect } from '@/components/custom/searchable-select';
+import { piecesApi } from '@/features/pieces/lib/blocks-api';
+
 type SelectPiecePropertyProps = {
   refreshers: string[];
+  property:
+    | DropdownProperty<any, boolean>
+    | MultiSelectDropdownProperty<unknown, boolean>;
   propertyName: string;
   value?: unknown;
   multiple?: boolean;
@@ -36,7 +41,6 @@ const DynamicDropdownPiecePropertyImplementation = React.memo(
     const form = useFormContext<Action | Trigger>();
     const isFirstRender = useRef(true);
     const previousValues = useRef<undefined | unknown[]>(undefined);
-
     const newRefreshers = [...props.refreshers, 'auth'];
     const [dropdownState, setDropdownState] = useState<DropdownState<unknown>>({
       disabled: false,
@@ -144,6 +148,7 @@ const DynamicDropdownPiecePropertyImplementation = React.memo(
         showDeselect={
           props.showDeselect && !isNil(props.value) && !props.disabled
         }
+        property={props.property}
         onRefresh={refresh}
         showRefresh={!isPending && !readonly}
       />

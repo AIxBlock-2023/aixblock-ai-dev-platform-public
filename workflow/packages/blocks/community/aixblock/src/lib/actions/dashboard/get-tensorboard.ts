@@ -25,35 +25,41 @@ export const getTensorboard = createAction({
             throw new Error('ML ID is required');
         }
 
-        // Fetch ML Info to get project
-        const mlResponse = await httpClient.sendRequest({
-            method: HttpMethod.GET,
-            url: `${auth.baseApiUrl}/api/ml/${propsValue.ml_id}`,
-            headers: {
-                Authorization: `Token ${auth.apiToken}`
-            }
-        });
-        const mlInfo = mlResponse.body;
-        const projectId = mlInfo.project;
-        if (!projectId) throw new Error('Could not resolve project from mlInfo');
-
-        // Call the new tensorboard API with project and backend_id
-        const tensorboardResponse = await httpClient.sendRequest({
-            method: HttpMethod.GET,
-            url: `${auth.baseApiUrl}/api/projects/${projectId}/tensorboard?backend_id=${propsValue.ml_id}`,
-            headers: {
-                Authorization: `Token ${auth.apiToken}`
-            },
-            responseType: 'json'
-        });
-        // Remap 'proxy_url' to 'ml_url' in the response
-        const { tensorboard_url, proxy_url, dashboard_url, ...rest } = tensorboardResponse.body;
-        return {
-            tensorboard_url: tensorboard_url || '',
-            ml_url: proxy_url || '',
-            dashboard_url: dashboard_url || '',
-            ...rest
-        };
+        const resp = await getDashboard(propsValue.ml_id, auth.baseApiUrl, auth.apiToken);
+        return resp;
 
     }
 });
+
+export const getDashboard = async (ml_id: string, baseApiUrl: string, apiToken: string) => {
+    // Fetch ML Info to get project
+    const mlResponse = await httpClient.sendRequest({
+        method: HttpMethod.GET,
+        url: `${baseApiUrl}/api/ml/${ml_id}`,
+        headers: {
+            Authorization: `Token ${apiToken}`
+        }
+    });
+    const mlInfo = mlResponse.body;
+    const projectId = mlInfo.project;
+    if (!projectId) throw new Error('Could not resolve project from mlInfo');
+
+    // Call the new tensorboard API with project and backend_id
+    const tensorboardResponse = await httpClient.sendRequest({
+        method: HttpMethod.GET,
+        url: `${baseApiUrl}/api/projects/${projectId}/tensorboard?backend_id=${ml_id}`,
+        headers: {
+            Authorization: `Token ${apiToken}`
+        },
+        responseType: 'json'
+    });
+
+    const { tensorboard_url, proxy_url, dashboard_url, ...rest } = tensorboardResponse.body;
+
+    return {
+        tensorboard_url: tensorboard_url || '',
+        ml_url: proxy_url || '',
+        dashboard_url: dashboard_url || '',
+        ...rest
+    }
+}

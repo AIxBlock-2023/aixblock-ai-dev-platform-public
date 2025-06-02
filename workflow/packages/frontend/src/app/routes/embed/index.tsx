@@ -10,14 +10,14 @@ import { authenticationSession } from '@/lib/authentication-session';
 import { managedAuthApi } from '@/lib/managed-auth-api';
 import { parentWindow } from '@/lib/utils';
 import {
-    _AP_JWT_TOKEN_QUERY_PARAM_NAME,
-    WorkflowClientAuthenticationFailed,
-    WorkflowClientAuthenticationSuccess,
-    WorkflowClientConfigurationFinished,
-    WorkflowClientEventName,
-    WorkflowClientInit,
-    WorkflowVendorEventName,
-    WorkflowVendorInit,
+  _AP_JWT_TOKEN_QUERY_PARAM_NAME,
+  WorkflowClientAuthenticationFailed,
+  WorkflowClientAuthenticationSuccess,
+  WorkflowClientConfigurationFinished,
+  WorkflowClientEventName,
+  WorkflowClientInit,
+  WorkflowVendorEventName,
+  WorkflowVendorInit,
 } from 'axb-embed-sdk';
 
 const notifyVendorPostAuthentication = () => {
@@ -62,18 +62,27 @@ const EmbedPage = React.memo(() => {
               setEmbedState({
                 hideSideNav: event.data.data.hideSidebar,
                 isEmbedded: true,
-                hideLogoInBuilder: event.data.data.hideLogoInBuilder || false,
+                hideLogoInBuilder: event.data.data.hideLogoInBuilder ?? false,
                 hideFlowNameInBuilder:
-                  event.data.data.hideFlowNameInBuilder || false,
+                  event.data.data.hideFlowNameInBuilder ?? false,
                 prefix: event.data.data.prefix,
                 disableNavigationInBuilder:
-                  event.data.data.disableNavigationInBuilder,
-                hideFolders: event.data.data.hideFolders || false,
+                  event.data.data.disableNavigationInBuilder !== false,
+                hideFolders: event.data.data.hideFolders ?? false,
                 sdkVersion: event.data.data.sdkVersion,
                 fontUrl: event.data.data.fontUrl,
                 fontFamily: event.data.data.fontFamily,
                 useDarkBackground:
                   initialRoute.startsWith('/embed/connections'),
+                hideExportAndImportFlow:
+                  event.data.data.hideExportAndImportFlow ?? false,
+                hideHomeButtonInBuilder:
+                  event.data.data.disableNavigationInBuilder ===
+                  'keep_home_button_only'
+                    ? false
+                    : event.data.data.disableNavigationInBuilder,
+                emitHomeButtonClickedEvent:
+                  event.data.data.emitHomeButtonClickedEvent ?? false,
               });
 
               //previously initialRoute was optional

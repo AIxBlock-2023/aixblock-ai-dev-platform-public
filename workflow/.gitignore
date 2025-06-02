@@ -17,3 +17,4 @@ storage
 .DS_Store
 dist/
 !package-lock.json
+packages/frontend/public/embed-sdk/*.js

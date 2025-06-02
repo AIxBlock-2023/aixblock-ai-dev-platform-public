@@ -37,7 +37,7 @@ const ApDashboardSidebarHeader = ({
         })}
       >
         <div className="flex items-center justify-center gap-1">
-          <div className="relative flex items-center">
+          <div className="relative">
             <Button variant="ghost">
               <Link
                 to={isHomeDashboard ? defaultRoute : '/platform'}
@@ -67,18 +67,21 @@ const ApDashboardSidebarHeader = ({
                 </Tooltip>
               </Link>
             </Button>
-            <div>
-              <div className="font-light text-xs leading-4">
-                Automation
+            {!showProjectSwitcher && (
+              <div className="absolute -right-7 top-1">
+                <SidebarInviteUserButton />
               </div>
-              <div className="font-bold uppercase leading-4">
-                Workflow
-              </div>
-            </div>
+            )}
           </div>
+
+          {showProjectSwitcher && (
+            <div className="grow">
+              <ProjectSwitcher />
+            </div>
+          )}
         </div>
 
-        {/*{showProjectSwitcher && <SidebarInviteUserButton />}*/}
+        {showProjectSwitcher && <SidebarInviteUserButton />}
       </div>
     </SidebarHeader>
   );

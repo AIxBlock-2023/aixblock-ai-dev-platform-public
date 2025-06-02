@@ -1,7 +1,7 @@
 import AIxBlock from '@tonyshark/aixblock-sdk/lib';
 import { FastifyBaseLogger, FastifyRequest } from 'fastify';
 import { apVersionUtil } from 'workflow-server-shared';
-import { ApEdition, apId, EnginePrincipal, ImportTemplateType, isNil, StoreEntry } from 'workflow-shared';
+import { ApEdition, apId, EnginePrincipal, FlowGpu, getScopeAndKey, ImportTemplateType, isNil, PieceStoreScope, StoreEntry } from 'workflow-shared';
 import { aiProviderService } from '../../../ai/ai-provider.service';
 import { userIdentityRepository } from '../../../authentication/user-identity/user-identity-service';
 import { blockMetadataService } from '../../../blocks/block-metadata-service';
@@ -9,7 +9,6 @@ import { repoFactory } from '../../../core/db/repo-factory';
 import { projectService } from '../../../project/project-service';
 import { StoreEntryEntity } from '../../../store-entry/store-entry-entity';
 import { userService } from '../../../user/user-service';
-import { getScopeAndKey, PieceStoreScope } from '../aixblock-web-forms/aixblock-web-forms.service';
 
 const storeEntryRepo = repoFactory<StoreEntry>(StoreEntryEntity);
 const providerKey = 'aixblock-provider';
@@ -167,5 +166,18 @@ export const aixblockService = (log: FastifyBaseLogger) => ({
         const user = await userService.getOneOrFail({ id: userId });
         const identity = await userIdentityRepository().findOneByOrFail({ id: user.identityId });
         console.log(principal)
-    }
+    },
+    /**
+     * Get list user compute gpus in platforms
+     * @param baseUrl Platform base url
+     * @param token Token
+     */
+    getComputeMarketGpus: async (baseUrl: string, token: string): Promise<FlowGpu[]> => {
+        const aixblockSdk = new AIxBlock({
+            baseApi: baseUrl,
+            apiKey: token,
+        })
+        const result = await aixblockSdk.getGpus('0')
+        return result?.data
+    },
 });

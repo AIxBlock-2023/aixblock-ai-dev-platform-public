@@ -1,6 +1,7 @@
 import { httpClient, HttpMethod } from 'workflow-blocks-common';
 import { createAction, Property } from 'workflow-blocks-framework';
 import { aixblockAuth } from '../../..';
+import { getDashboard } from '../dashboard/get-tensorboard';
 
 interface ComputeGpu {
     id: number;
@@ -95,6 +96,7 @@ export const train = createAction({
             required: true,
             refreshers: [],
             linkToModelMarketplace: true,
+            showUseHuggingFaceOption: false,
             async options({ auth }) {
                 // Fix: assert auth type for TypeScript
                 const typedAuth = auth as { apiToken: string; baseApiUrl: string };
@@ -373,6 +375,7 @@ export const train = createAction({
 
             // If model is already training, return immediately
             if (mlInfo.status_training === 'training') {
+                const { tensorboard_url, ml_url, dashboard_url } = await getDashboard(String(mlIdToUse), auth.baseApiUrl, auth.apiToken)
                 return {
                     status: 'success',
                     message: 'Training initiated successfully',
@@ -380,6 +383,11 @@ export const train = createAction({
                         ml_id: mlIdToUse,
                         status: mlInfo.status,
                         status_training: mlInfo.status_training
+                    },
+                    tensorboard: {
+                        tensorboard_url,
+                        ml_url,
+                        dashboard_url
                     }
                 };
             }
@@ -500,10 +508,22 @@ export const train = createAction({
             });
             console.log('Training initiated');
 
+            const tensorboard_info = {
+                tensorboard_url: '',
+                ml_url: '',
+                dashboard_url: ''
+            }
+            if (trainResponse.body.ml_id) {
+                const info = await getDashboard(trainResponse.body.ml_id, auth.baseApiUrl, auth.apiToken)
+                tensorboard_info.tensorboard_url = info.tensorboard_url;
+                tensorboard_info.ml_url = info.ml_url;
+                tensorboard_info.dashboard_url = info.dashboard_url;
+            }
             return {
                 status: 'success',
                 message: 'Training initiated successfully',
-                response: trainResponse.body
+                response: trainResponse.body,
+                tensorboard: tensorboard_info,
             };
         } catch (error) {
             console.error('Training error:', error);

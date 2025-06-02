@@ -117,6 +117,10 @@ pipeline {
                         sh "docker tag aixblock/workflow:${NEW_VERSION} aixblock/workflow:latest"
                         sh "docker push aixblock/workflow:latest"
                     }
+                    if (env.BRANCH_NAME == 'v2.3') {
+                        sh "docker tag aixblock/workflow:${NEW_VERSION} aixblock/workflow:latest"
+                        sh "docker push aixblock/workflow:latest"
+                    }
                     sh "docker system prune --all --force"
                     // if (env.BRANCH_NAME == 'staging') {
                       

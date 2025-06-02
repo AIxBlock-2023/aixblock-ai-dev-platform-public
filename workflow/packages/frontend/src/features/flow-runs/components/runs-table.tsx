@@ -2,39 +2,32 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import { ColumnDef } from '@tanstack/react-table';
 import { t } from 'i18next';
 import {
-  CheckIcon,
-  ChevronDown,
-  History,
-  PlayIcon,
-  Redo,
-  RotateCw,
+    CheckIcon,
+    ChevronDown,
+    History,
+    PlayIcon,
+    Redo,
+    RotateCw,
 } from 'lucide-react';
 import { useCallback, useMemo, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import {
-  FlowRetryStrategy,
-  FlowRun,
-  FlowRunStatus,
-  isFailedState,
-  Permission,
-} from 'workflow-shared';
 
 import { useNewWindow } from '@/components/embed-provider';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import {
-  BulkAction,
-  CURSOR_QUERY_PARAM,
-  DataTable,
-  LIMIT_QUERY_PARAM,
-  RowDataWithActions,
+    BulkAction,
+    CURSOR_QUERY_PARAM,
+    DataTable,
+    LIMIT_QUERY_PARAM,
+    RowDataWithActions,
 } from '@/components/ui/data-table';
 import { DataTableColumnHeader } from '@/components/ui/data-table/data-table-column-header';
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { MessageTooltip } from '@/components/ui/message-tooltip';
 import { PermissionNeededTooltip } from '@/components/ui/permission-needed-tooltip';
@@ -46,6 +39,13 @@ import { flowsHooks } from '@/features/flows/lib/flows-hooks';
 import { useAuthorization } from '@/hooks/authorization-hooks';
 import { authenticationSession } from '@/lib/authentication-session';
 import { formatUtils } from '@/lib/utils';
+import {
+    FlowRetryStrategy,
+    FlowRun,
+    FlowRunStatus,
+    isFailedState,
+    Permission,
+} from 'workflow-shared';
 
 type SelectedRow = {
   id: string;
@@ -87,6 +87,7 @@ export const RunsTable = () => {
   const navigate = useNavigate();
   const { data: flowsData, isFetching: isFetchingFlows } = flowsHooks.useFlows({
     limit: 1000,
+    cursor: undefined,
   });
   const openNewWindow = useNewWindow();
   const flows = flowsData?.data;

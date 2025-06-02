@@ -52,6 +52,8 @@ export type TPropertyValue<
     ? ApFile
     : U extends PropertyType.COLOR
     ? string
+    : U extends PropertyType.COPY_TEXT
+    ? string
     : unknown;
 };
 

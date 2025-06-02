@@ -4,43 +4,36 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import { HttpStatusCode } from 'axios';
 import { t } from 'i18next';
 import {
-  ArrowDownZA,
-  ArrowUpAz,
-  EllipsisVertical,
-  Folder,
-  FolderOpen,
-  Pencil,
-  PlusIcon,
-  Shapes,
-  TableProperties,
-  Trash2,
+    ArrowDownZA,
+    ArrowUpAz,
+    EllipsisVertical,
+    Folder,
+    FolderOpen,
+    Pencil,
+    PlusIcon,
+    Shapes,
+    TableProperties,
+    Trash2,
 } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { useLocation, useSearchParams } from 'react-router-dom';
-import { FolderDto, isNil, Permission } from 'workflow-shared';
-
-import { foldersApi } from '../lib/folders-api';
-import { foldersHooks } from '../lib/folders-hooks';
-import { foldersUtils } from '../lib/folders-utils';
-
-import { RenameFolderDialog } from './rename-folder-dialog';
 
 import { ConfirmationDeleteDialog } from '@/components/delete-dialog';
 import { Button } from '@/components/ui/button';
 import {
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
+    Dialog,
+    DialogContent,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
 } from '@/components/ui/dialog';
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { FormField, FormItem, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
@@ -55,6 +48,13 @@ import { useAuthorization } from '@/hooks/authorization-hooks';
 import { api } from '@/lib/api';
 import { authenticationSession } from '@/lib/authentication-session';
 import { cn } from '@/lib/utils';
+import { FolderDto, isNil, Permission } from 'workflow-shared';
+
+import { foldersApi } from '../lib/folders-api';
+import { foldersHooks } from '../lib/folders-hooks';
+import { foldersUtils } from '../lib/folders-utils';
+
+import { RenameFolderDialog } from './rename-folder-dialog';
 
 const CreateFolderFormSchema = Type.Object({
   displayName: Type.String({
@@ -381,7 +381,7 @@ const FolderFilterList = ({ refresh }: { refresh: number }) => {
         <Button
           variant="secondary"
           className={cn('flex w-full justify-start bg-background', {
-            'bg-accent': isInAllFlows,
+            'bg-muted': isInAllFlows,
           })}
           onClick={() => updateSearchParams(undefined)}
         >
@@ -389,7 +389,7 @@ const FolderFilterList = ({ refresh }: { refresh: number }) => {
             icon={
               <TableProperties
                 className={cn('w-4.5 h-4.5 -scale-100', {
-                  'text-accent-foreground': isInAllFlows,
+                  'text-primary': isInAllFlows,
                 })}
               ></TableProperties>
             }
@@ -398,7 +398,7 @@ const FolderFilterList = ({ refresh }: { refresh: number }) => {
                 className={cn(
                   'flex-grow whitespace-break-spaces break-all text-start truncate',
                   {
-                    'text-accent-foreground': isInAllFlows,
+                    'text-primary': isInAllFlows,
                   },
                 )}
               >
@@ -412,7 +412,7 @@ const FolderFilterList = ({ refresh }: { refresh: number }) => {
         <Button
           variant="ghost"
           className={cn('flex w-full justify-start bg-background', {
-            'bg-accent': isInUncategorized,
+            'bg-muted': isInUncategorized,
           })}
           onClick={() => updateSearchParams('NULL')}
         >
@@ -429,7 +429,7 @@ const FolderFilterList = ({ refresh }: { refresh: number }) => {
                 className={cn(
                   'flex-grow whitespace-break-spaces break-all text-start truncate',
                   {
-                    'text-accent-foreground': isInUncategorized,
+                    'text-primary': isInUncategorized,
                   },
                 )}
               >

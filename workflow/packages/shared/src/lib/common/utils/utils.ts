@@ -1,4 +1,5 @@
 import { deepmerge } from 'deepmerge-ts'
+import { PieceStoreScope } from '../../aixblock'
 
 export function isString(str: unknown): str is string {
     return str != null && typeof str === 'string'
@@ -125,4 +126,16 @@ export function chunk<T>(records: T[], size: number) {
         chunks.push(records.slice(i, i + size))
     }
     return chunks
+}
+
+
+export function getScopeAndKey(scope: string, key: string, flowId: string, flowRunId: string) {
+    switch (scope) {
+        case PieceStoreScope.PROJECT:
+            return { key: key };
+        case PieceStoreScope.FLOW:
+            return { key: `flow_${flowId}/${key}/flowRunId_${flowRunId}` };
+        default:
+            return { key: '' };
+    }
 }

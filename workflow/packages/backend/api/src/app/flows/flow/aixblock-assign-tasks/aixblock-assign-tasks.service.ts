@@ -5,7 +5,9 @@ import {
     apId,
     assertNotNullOrUndefined,
     ErrorCode,
+    getScopeAndKey,
     isNil,
+    PieceStoreScope,
     PlatformRole,
     StoreEntry,
 } from 'workflow-shared';
@@ -13,7 +15,6 @@ import { userIdentityRepository } from '../../../authentication/user-identity/us
 import { repoFactory } from '../../../core/db/repo-factory';
 import { StoreEntryEntity } from '../../../store-entry/store-entry-entity';
 import { userService } from '../../../user/user-service';
-import { getScopeAndKey, PieceStoreScope } from '../aixblock-web-forms/aixblock-web-forms.service';
 import { flowRepo } from '../flow.repo';
 
 const storeEntryRepo = repoFactory<StoreEntry>(StoreEntryEntity);

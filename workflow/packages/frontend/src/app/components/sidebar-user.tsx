@@ -25,6 +25,11 @@ export function SidebarUser() {
     <SidebarMenu>
       <SidebarMenuItem className="flex items-center justify-between w-full">
         <div className="flex items-center">
+          <Avatar className="h-8 w-8 rounded-lg">
+            <AvatarFallback className="rounded-lg bg-gray-200">
+              {user.firstName.charAt(0)}
+            </AvatarFallback>
+          </Avatar>
           <div className="grid flex-1 text-left text-sm leading-tight ml-2">
             <span className="truncate font-semibold">{user.firstName}</span>
             <span className="truncate text-xs">{user.email}</span>

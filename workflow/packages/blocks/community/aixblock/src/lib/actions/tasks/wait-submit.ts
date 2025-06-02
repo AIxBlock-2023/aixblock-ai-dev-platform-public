@@ -1,5 +1,5 @@
 import { createAction, PieceAuth, Property, StoreScope } from 'workflow-blocks-framework';
-import { ExecutionType, MarkdownVariant, PauseType, USE_DRAFT_QUERY_PARAM_NAME } from 'workflow-shared';
+import { AIxBlockWaitSubmitFormKey, ExecutionType, MarkdownVariant, PauseType, USE_DRAFT_QUERY_PARAM_NAME } from 'workflow-shared';
 
 const markdown = `
 ## **This plugin will support for user to show the list of tasks.**
@@ -41,8 +41,8 @@ export const waitSubmit = createAction({
     },
     async run(context) {
 
-        const approveStoreKey = `aixblock-wait-submit-form-approve-link/flowRunId_${context.run.id}`;
-        const rejectStoreKey = `aixblock-wait-submit-form-reject-link/flowRunId_${context.run.id}`;
+        const approveStoreKey = `${AIxBlockWaitSubmitFormKey.APPROVE_LINK}/flowRunId_${context.run.id}`;
+        const rejectStoreKey = `${AIxBlockWaitSubmitFormKey.REJECT_LINK}/flowRunId_${context.run.id}`;
 
         if (context.executionType === ExecutionType.BEGIN) {
             context.run.pause({

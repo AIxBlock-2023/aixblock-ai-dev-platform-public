@@ -1,7 +1,7 @@
 import { useMutation } from '@tanstack/react-query';
 import dayjs from 'dayjs';
 import { t } from 'i18next';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import { useSocket } from '@/components/socket-provider';
 import { Button } from '@/components/ui/button';
@@ -10,16 +10,18 @@ import { INTERNAL_ERROR_TOAST, useToast } from '@/components/ui/use-toast';
 import { sampleDataApi } from '@/features/flows/lib/sample-data-api';
 import { todosApi } from '@/features/todos/lib/todos-api';
 import {
-    ActionType,
-    FileType,
-    FlowOperationType,
-    Step,
-    StepRunResponse,
-    TodoType,
-    TodoWithAssignee,
-    TriggerType,
-    flowStructureUtil,
-    isNil,
+  ActionType,
+  eventBus,
+  EventBusTypes,
+  FileType,
+  FlowOperationType,
+  flowStructureUtil,
+  isNil,
+  Step,
+  StepRunResponse,
+  TodoType,
+  TodoWithAssignee,
+  TriggerType,
 } from 'workflow-shared';
 
 import { flowRunsApi } from '../../../features/flow-runs/lib/flow-runs-api';
@@ -174,6 +176,10 @@ const TestStepSectionImplementation = React.memo(
     const [lastTestDate, setLastTestDate] = useState(
       currentStep.settings.inputUiInfo?.lastTestDate,
     );
+
+    useEffect(() => {
+      eventBus.emit(EventBusTypes.OUTPUT_STEP_DATA, sampleData)
+    }, [sampleData]);
 
     const sampleDataExists = !isNil(lastTestDate) || !isNil(errorMessage);
 

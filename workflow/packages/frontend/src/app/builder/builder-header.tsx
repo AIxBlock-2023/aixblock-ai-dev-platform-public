@@ -1,35 +1,40 @@
+import { QuestionMarkCircledIcon } from '@radix-ui/react-icons';
 import { t } from 'i18next';
 import { ChevronDown, History, Logs } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import {
-    createSearchParams,
-    useLocation,
-    useNavigate,
-    useSearchParams,
+  createSearchParams,
+  useLocation,
+  useNavigate,
+  useSearchParams,
 } from 'react-router-dom';
 
 import {
-    LeftSideBarType,
-    useBuilderStateContext,
+  LeftSideBarType,
+  useBuilderStateContext,
 } from '@/app/builder/builder-hooks';
-import { useEmbedding } from '@/components/embed-provider';
+import { useEmbedding, useNewWindow } from '@/components/embed-provider';
 import { Button } from '@/components/ui/button';
 import EditableText from '@/components/ui/editable-text';
 import { HomeButton } from '@/components/ui/home-button';
 import {
-    Tooltip,
-    TooltipContent,
-    TooltipProvider,
-    TooltipTrigger,
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
 } from '@/components/ui/tooltip';
+import { UserAvatar } from '@/components/ui/user-avatar';
 import { foldersHooks } from '@/features/folders/lib/folders-hooks';
 import { useAuthorization } from '@/hooks/authorization-hooks';
+import { flagsHooks } from '@/hooks/flags-hooks';
 import { authenticationSession } from '@/lib/authentication-session';
 import { NEW_FLOW_QUERY_PARAM } from '@/lib/utils';
 import {
-    FlowOperationType,
-    FlowVersionState,
-    Permission,
+  ApFlagId,
+  FlowOperationType,
+  FlowVersionState,
+  Permission,
+  supportUrl,
 } from 'workflow-shared';
 
 import FlowActionMenu from '../components/flow-actions-menu';
@@ -40,6 +45,10 @@ export const BuilderHeader = () => {
   const [queryParams] = useSearchParams();
   const navigate = useNavigate();
   const location = useLocation();
+  const openNewWindow = useNewWindow();
+  const { data: showSupport } = flagsHooks.useFlag<boolean>(
+    ApFlagId.SHOW_COMMUNITY,
+  );
   const isInRunsPage = useMemo(
     () => location.pathname.includes('/runs'),
     [location.pathname],
@@ -126,24 +135,26 @@ export const BuilderHeader = () => {
               />
             )}
           </div>
-          <FlowActionMenu
-            insideBuilder={true}
-            flow={flow}
-            flowVersion={flowVersion}
-            readonly={!isLatestVersion}
-            onDelete={() => {
-              navigate(
-                authenticationSession.appendProjectRoutePrefix('/flows'),
-              );
-            }}
-            onRename={() => {
-              setIsEditingFlowName(true);
-            }}
-            onMoveTo={(folderId) => moveToFolderClientSide(folderId)}
-            onDuplicate={() => {}}
-          >
-            <ChevronDown className="h-8 w-8" />
-          </FlowActionMenu>
+          {!embedState.hideFlowNameInBuilder && (
+            <FlowActionMenu
+              insideBuilder={true}
+              flow={flow}
+              flowVersion={flowVersion}
+              readonly={!isLatestVersion}
+              onDelete={() => {
+                navigate(
+                  authenticationSession.appendProjectRoutePrefix('/flows'),
+                );
+              }}
+              onRename={() => {
+                setIsEditingFlowName(true);
+              }}
+              onMoveTo={(folderId) => moveToFolderClientSide(folderId)}
+              onDuplicate={() => {}}
+            >
+              <ChevronDown className="h-8 w-8" />
+            </FlowActionMenu>
+          )}
         </div>
 
         <div className="grow"></div>

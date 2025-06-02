@@ -1,5 +1,5 @@
-import { ALL_PRINCIPAL_TYPES, PrincipalType } from 'workflow-shared';
 import { FastifyPluginAsyncTypebox } from '@fastify/type-provider-typebox';
+import { ALL_PRINCIPAL_TYPES, PrincipalType } from 'workflow-shared';
 import { aixblockService } from './aixblock.service';
 
 export const aixblockModule: FastifyPluginAsyncTypebox = async (app) => {
@@ -26,7 +26,7 @@ const aixblockController: FastifyPluginAsyncTypebox = async (app) => {
 
 const GetProvider = {
     config: {
-        allowedPrincipals: [PrincipalType.ENGINE],
+        allowedPrincipals: [PrincipalType.ENGINE, PrincipalType.USER],
     },
     schema: {
     },

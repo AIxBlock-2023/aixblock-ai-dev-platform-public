@@ -40,6 +40,7 @@ import {
 import { FormError } from '../../../components/ui/form';
 import { flowsApi } from '../lib/flows-api';
 import { checkTemplateType } from '../lib/import-templates/check-template-type';
+import { convertApTemplate } from '../lib/import-templates/convert-ap';
 import { convertMake } from '../lib/import-templates/convert-make';
 import { convertN8n } from '../lib/import-templates/convert-n8n';
 import { convertZapier } from '../lib/import-templates/convert-zapier';
@@ -238,6 +239,8 @@ const ImportFlowDialog = (
           return await convertMake(template);
         } else if (templateType === ImportTemplateType.ZAPIER) {
           return await convertZapier(template as any);
+        } else if (templateType === ImportTemplateType.LOCAL) {
+          return await convertApTemplate(template);
         }
       } catch (error) {
         console.error('Error when convert template', error);

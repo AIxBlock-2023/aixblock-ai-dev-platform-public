@@ -3,6 +3,8 @@ import { t } from 'i18next';
 import { CheckIcon, Package, Trash } from 'lucide-react';
 import { useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
+
+import { RequestTrial } from '@/app/components/request-trial';
 import { ConfirmationDeleteDialog } from '@/components/delete-dialog';
 import { Button } from '@/components/ui/button';
 import {
@@ -11,6 +13,7 @@ import {
   RowDataWithActions,
 } from '@/components/ui/data-table';
 import { DataTableColumnHeader } from '@/components/ui/data-table/data-table-column-header';
+import { LockedAlert } from '@/components/ui/locked-alert';
 import { PieceIcon } from '@/features/pieces/components/block-icon';
 import { piecesApi } from '@/features/pieces/lib/blocks-api';
 import { piecesHooks } from '@/features/pieces/lib/blocks-hook';
@@ -143,6 +146,20 @@ const ProjectPiecesPage = () => {
   return (
     <div className="flex w-full flex-col items-center justify-center gap-4">
       <div className="mx-auto w-full flex-col">
+        {!platform.managePiecesEnabled && (
+          <LockedAlert
+            title={t('Control Blocks')}
+            description={t(
+              "Show the blocks that matter most to your users and hide the ones you don't like.",
+            )}
+            button={
+              <RequestTrial
+                featureKey="ENTERPRISE_PIECES"
+                buttonVariant="outline-primary"
+              />
+            }
+          />
+        )}
         <TableTitle>{t('Blocks')}</TableTitle>
         <DataTable
           emptyStateTextTitle={t('No blocks found')}

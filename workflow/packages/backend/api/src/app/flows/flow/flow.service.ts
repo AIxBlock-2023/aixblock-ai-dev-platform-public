@@ -1,4 +1,5 @@
 import { FastifyBaseLogger } from 'fastify'
+import { FastifyRequest } from 'fastify/types/request'
 import { EntityManager, In, IsNull } from 'typeorm'
 import { AppSystemProp, rejectedPromiseHandler, WorkerSystemProp } from 'workflow-server-shared'
 import {
@@ -8,6 +9,7 @@ import {
     Cursor,
     ErrorCode,
     Flow,
+    FlowGpu,
     FlowId,
     FlowOperationRequest,
     FlowOperationType,
@@ -26,16 +28,19 @@ import {
     SeekPage,
     UserId
 } from 'workflow-shared'
+import { userIdentityRepository } from '../../authentication/user-identity/user-identity-service'
 import { transaction } from '../../core/db/transaction'
 import { emailService } from '../../ee/helper/email/email-service'
 import { distributedLock } from '../../helper/lock'
 import { buildPaginator } from '../../helper/pagination/build-paginator'
 import { paginationHelper } from '../../helper/pagination/pagination-utils'
 import { system } from '../../helper/system/system'
+import { userService } from '../../user/user-service'
 import { flowVersionService } from '../flow-version/flow-version.service'
 import { flowFolderService } from '../folder/folder.service'
 import { ListingCategoryEntity } from '../listing/listing-category.entity'
 import { listingCategoryRepo } from '../listing/listing-category.repo'
+import { aixblockService } from './aixblock/aixblock.service'
 import { flowSideEffects } from './flow-service-side-effects'
 import { FlowEntity, FlowSchema } from './flow.entity'
 import { flowRepo } from './flow.repo'
@@ -542,6 +547,17 @@ export const flowService = (log: FastifyBaseLogger) => ({
         if (flow.listingPreview)
             return `${system.getOrThrow(WorkerSystemProp.FRONTEND_URL)}/projects/${flow.projectId}/flows/${flow.id}/preview`
         return null
+    },
+
+    async listFlowGpu(request: FastifyRequest): Promise<FlowGpu[]> {
+        const userId = request.principal.id
+        const user = await userService.getOneOrFail({ id: userId })
+        const identity = await userIdentityRepository().findOneByOrFail({ id: user.identityId })
+        let listGpu: FlowGpu[] = []
+        if (identity && identity.url && identity.token) {
+            listGpu = await aixblockService(log).getComputeMarketGpus(identity.url, identity.token)
+        }
+        return listGpu
     },
 
     v2: {

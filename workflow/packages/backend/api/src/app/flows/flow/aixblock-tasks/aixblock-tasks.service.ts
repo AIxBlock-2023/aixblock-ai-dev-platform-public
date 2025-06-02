@@ -7,7 +7,9 @@ import {
     apId,
     ErrorCode,
     FlowId,
+    getScopeAndKey,
     isNil,
+    PieceStoreScope,
     PopulatedFlow,
     StoreEntry,
     Trigger,
@@ -15,7 +17,6 @@ import {
 import { repoFactory } from '../../../core/db/repo-factory';
 import { StoreEntryEntity } from '../../../store-entry/store-entry-entity';
 import { flowVersionService } from '../../flow-version/flow-version.service';
-import { getScopeAndKey } from '../aixblock-web-forms/aixblock-web-forms.service';
 import { flowRepo } from '../flow.repo';
 
 const storeEntryRepo = repoFactory<StoreEntry>(StoreEntryEntity);
@@ -28,11 +29,6 @@ function findStep(obj: Trigger, step: string) {
         obj = obj.nextAction;
     }
     return null;
-}
-
-export enum PieceStoreScope {
-    PROJECT = 'COLLECTION',
-    FLOW = 'FLOW',
 }
 
 export const aixblockTasksService = (log: FastifyBaseLogger) => ({

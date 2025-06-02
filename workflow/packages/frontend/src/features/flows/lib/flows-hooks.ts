@@ -5,18 +5,17 @@ import { INTERNAL_ERROR_TOAST, toast } from '@/components/ui/use-toast';
 import { authenticationSession } from '@/lib/authentication-session';
 import { downloadFile } from '@/lib/utils';
 import {
-  Cursor,
-  FlowOperationType,
-  FlowVersion,
-  ListFlowsRequest,
-  PopulatedFlow,
+    FlowOperationType,
+    FlowVersion,
+    ListFlowsRequest,
+    PopulatedFlow,
 } from 'workflow-shared';
 
 import { flowsApi } from './flows-api';
 import { flowsUtils } from './flows-utils';
 
 export const flowsHooks = {
-  useFlows: (request: Omit<ListFlowsRequest, 'projectId' | 'cursor'> & { cursor?: Cursor | undefined }) => {
+  useFlows: (request: Omit<ListFlowsRequest, 'projectId'>) => {
     return useQuery({
       queryKey: ['flows', authenticationSession.getProjectId()],
       queryFn: async () => {

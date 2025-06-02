@@ -12,6 +12,7 @@ import {
     CountFlowsRequest,
     CreateFlowRequest,
     ErrorCode,
+    FlowGpu,
     FlowOperationRequest,
     FlowOperationType,
     flowStructureUtil,
@@ -41,8 +42,8 @@ import { gitRepoService } from '../../ee/project-release/git-sync/git-sync.servi
 import { eventsHooks } from '../../helper/application-events'
 import { StoreEntryEntity } from '../../store-entry/store-entry-entity'
 import { flowService } from './flow.service'
-import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE } from '../../helper/pagination'
 
+const DEFAULT_PAGE_SIZE = 10
 
 const storeEntryRepo = repoFactory<StoreEntry>(StoreEntryEntity)
 
@@ -95,12 +96,11 @@ export const flowController: FastifyPluginAsyncTypebox = async (app) => {
         return flowService(request.log).list({
             projectId: request.principal.projectId,
             folderId: request.query.folderId,
-            page: request.query.page ?? DEFAULT_PAGE,
+            cursorRequest: request.query.cursor ?? null,
             limit: request.query.limit ?? DEFAULT_PAGE_SIZE,
             status: request.query.status,
             name: request.query.name,
             versionState: request.query.versionState,
-            cursorRequest: null,
         })
     })
 
@@ -188,6 +188,21 @@ export const flowController: FastifyPluginAsyncTypebox = async (app) => {
                 limit: request.query.limit ?? DEFAULT_PAGE_SIZE,
                 cursorRequest: request.query.cursor ?? null,
             })
+        },
+    )
+
+    app.get(
+        '/marketplace/compute/gpus',
+        {
+            schema: {
+                response: {
+                    [StatusCodes.OK]: Type.Array(FlowGpu),
+                },
+            },
+        },
+        async (request) => {
+            return flowService(request.log).listFlowGpu(request)
+
         },
     )
 }

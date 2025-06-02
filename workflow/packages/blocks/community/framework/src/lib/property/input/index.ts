@@ -3,15 +3,16 @@ import { MarkdownVariant } from 'workflow-shared';
 import { ArrayProperty } from './array-property';
 import { CheckboxProperty } from './checkbox-property';
 import { ColorProperty } from './color-property';
+import { CopyTextProperty } from './copy-property';
 import { CustomProperty } from './custom-property';
 import { DateTimeProperty } from './date-time-property';
 import {
-    DropdownProperty,
-    MultiSelectDropdownProperty,
+  DropdownProperty,
+  MultiSelectDropdownProperty,
 } from './dropdown/dropdown-prop';
 import {
-    StaticDropdownProperty,
-    StaticMultiSelectDropdownProperty,
+  StaticDropdownProperty,
+  StaticMultiSelectDropdownProperty,
 } from './dropdown/static-dropdown';
 import { DynamicProperties } from './dynamic-prop';
 import { FileProperty } from './file-property';
@@ -39,6 +40,7 @@ export const InputProperty = Type.Union([
   DateTimeProperty,
   FileProperty,
   ColorProperty,
+  CopyTextProperty,
 ]);
 
 export type InputProperty =
@@ -58,7 +60,8 @@ export type InputProperty =
   | DateTimeProperty<boolean>
   | FileProperty<boolean>
   | CustomProperty<boolean>
-  | ColorProperty<boolean>;
+  | ColorProperty<boolean>
+  | CopyTextProperty;
 
 type Properties<T> = Omit<
   T,
@@ -253,5 +256,19 @@ export const Property = {
     } as unknown as R extends true
       ? ColorProperty<true>
       : ColorProperty<false>;
+  },
+  CopyText(request: {
+    fieldKey: string;
+    displayName: string;
+    description: string;
+  }): CopyTextProperty {
+    return {
+      displayName: request.displayName,
+      description: request.description,
+      fieldKey: request.fieldKey,
+      type: PropertyType.COPY_TEXT,
+      valueSchema: undefined as never,
+      required: false,
+    };
   },
 };

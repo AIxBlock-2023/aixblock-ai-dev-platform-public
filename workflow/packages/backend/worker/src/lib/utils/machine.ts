@@ -66,7 +66,7 @@ export const workerMachine = {
     },
     getInternalApiUrl: (): string => {
         if (environmentVariables.hasAppModules()) {
-            return 'http://127.0.0.1:3000/'
+            return 'http://127.0.0.1:4000/'
         }
         const url = environmentVariables.getEnvironmentOrThrow(WorkerSystemProp.FRONTEND_URL)
         return appendSlashAndApi(replaceLocalhost(url))

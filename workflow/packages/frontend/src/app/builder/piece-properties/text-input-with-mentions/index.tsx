@@ -6,15 +6,15 @@ import Paragraph from '@tiptap/extension-paragraph';
 import Placeholder from '@tiptap/extension-placeholder';
 import Text from '@tiptap/extension-text';
 import { EditorContent, useEditor } from '@tiptap/react';
-
-import { piecesHooks } from '@/features/pieces/lib/blocks-hook';
-import { cn } from '@/lib/utils';
 import { flowStructureUtil, isNil } from 'workflow-shared';
 import './tip-tap.css';
 
 import { useBuilderStateContext } from '../../builder-hooks';
 
 import { textMentionUtils } from './text-input-utils';
+
+import { piecesHooks } from '@/features/pieces/lib/blocks-hook';
+import { cn } from '@/lib/utils';
 
 type TextInputWithMentionsProps = {
   className?: string;
@@ -25,6 +25,7 @@ type TextInputWithMentionsProps = {
   supportUrlPrefix?: boolean;
   supportDatasetIdPrefix?: boolean;
   supportLocalPrefix?: boolean;
+  propertyName?: string;
 };
 const extensions = (placeholder?: string) => {
   return [
@@ -74,6 +75,7 @@ export const TextInputWithMentions = ({
   supportUrlPrefix,
   supportDatasetIdPrefix,
   supportLocalPrefix,
+  propertyName,
 }: TextInputWithMentionsProps) => {
   const steps = useBuilderStateContext((state) =>
     flowStructureUtil.getAllSteps(state.flowVersion.trigger),
@@ -123,6 +125,7 @@ export const TextInputWithMentions = ({
             'cursor-not-allowed opacity-50': disabled,
           },
         ),
+        'data-field-id': propertyName ? propertyName : '',
       },
     },
     onUpdate: ({ editor }) => {
@@ -145,20 +148,33 @@ export const TextInputWithMentions = ({
 
       let updatedContent = content;
 
-      if (content.startsWith('url:') || content.startsWith('id:') || content.startsWith('local:')) {
+      if (
+        content.startsWith('url:') ||
+        content.startsWith('id:') ||
+        content.startsWith('local:')
+      ) {
         // If it already has a prefix, bypass the check
         return;
       }
 
-      if (supportUrlPrefix && (content.startsWith('http') || content.startsWith('https'))) {
+      if (
+        supportUrlPrefix &&
+        (content.startsWith('http') || content.startsWith('https'))
+      ) {
         if (!content.startsWith('url:')) {
           updatedContent = `url:${content}`;
         }
-      } else if (supportDatasetIdPrefix && (/^[a-zA-Z0-9-_]+\/[a-zA-Z0-9-_]+$/.test(content))) {
+      } else if (
+        supportDatasetIdPrefix &&
+        /^[a-zA-Z0-9-_]+\/[a-zA-Z0-9-_]+$/.test(content)
+      ) {
         if (!content.startsWith('id:')) {
           updatedContent = `id:${content}`;
         }
-      } else if (supportLocalPrefix && (content.includes('/') || content.includes('\\'))) {
+      } else if (
+        supportLocalPrefix &&
+        (content.includes('/') || content.includes('\\'))
+      ) {
         if (!content.startsWith('local:')) {
           updatedContent = `local:${content}`;
         }
@@ -168,8 +184,7 @@ export const TextInputWithMentions = ({
         editor.commands.setContent(updatedContent);
         onChange(updatedContent);
       }
-    }
+    },
   });
-
   return <EditorContent editor={editor} />;
 };

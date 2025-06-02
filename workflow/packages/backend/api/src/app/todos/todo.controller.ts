@@ -6,7 +6,6 @@ import { paginationHelper } from '../helper/pagination/pagination-utils'
 import { userService } from '../user/user-service'
 import { todoService } from './todo.service'
 
-
 const DEFAULT_CURSOR = null
 
 export const todoController: FastifyPluginAsyncTypebox = async (app) => {

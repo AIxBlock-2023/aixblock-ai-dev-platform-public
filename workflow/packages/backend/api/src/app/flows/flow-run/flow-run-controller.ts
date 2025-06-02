@@ -20,9 +20,9 @@ import {
     SeekPage,
     SERVICE_KEY_SECURITY_OPENAPI,
 } from 'workflow-shared'
-import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE } from '../../helper/pagination'
 import { flowRunService } from './flow-run-service'
 
+const DEFAULT_PAGING_LIMIT = 10
 
 export const flowRunController: FastifyPluginAsyncTypebox = async (app) => {
     app.get('/', ListRequest, async (request) => {
@@ -32,8 +32,7 @@ export const flowRunController: FastifyPluginAsyncTypebox = async (app) => {
             tags: request.query.tags,
             status: request.query.status,
             cursor: request.query.cursor ?? null,
-            page: request.query.page ?? DEFAULT_PAGE,
-            limit: request.query.limit ?? DEFAULT_PAGE_SIZE,
+            limit: Number(request.query.limit ?? DEFAULT_PAGING_LIMIT),
             createdAfter: request.query.createdAfter,
             createdBefore: request.query.createdBefore,
         })

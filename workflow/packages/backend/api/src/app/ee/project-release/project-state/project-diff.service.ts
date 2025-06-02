@@ -52,7 +52,7 @@ function findFlowsToUpdate({ newState, currentState }: DiffParams): ProjectOpera
 }
 
 function isConnectionChanged(stateOne: ConnectionState, stateTwo: ConnectionState): boolean {
-    return stateOne.displayName !== stateTwo.displayName || stateOne.blockName !== stateTwo.blockName
+    return stateOne.blockName !== stateTwo.blockName
 }
 
 function getFlowConnections(currentState: ProjectState, newState: ProjectState): ConnectionOperation[] {
