@@ -1,0 +1,26 @@
+from transformers import pipeline
+
+# Initialize the classifier (you can use another model if needed)
+classifier = pipeline("text-classification", model="distilbert-base-uncased")
+
+def score_vulnerability(vuln):
+    description = vuln.get("description", "")
+    impact = vuln.get("impact", {})
+
+    # Limit input length to avoid tokenizer/model limits
+    ai_score = classifier(description[:512])[0]['score']
+
+    # Use CVSS base score if available
+    cvss_score = float(impact.get("baseScore", 0))
+
+    # Combine scores (70% CVSS, 30% AI score scaled to 0–10)
+    combined_score = (cvss_score * 0.7) + (ai_score * 10 * 0.3)
+
+    return {
+        "id": vuln.get("id"),
+        "description": description[:80] + "...",
+        "cvss_base": cvss_score,
+        "ai_score": round(ai_score, 2),
+        "combined_score": round(combined_score, 2)
+    }
+
