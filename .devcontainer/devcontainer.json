@@ -1,0 +1,34 @@
+{
+  "name": "AIxBlock Dev Env",
+  "image": "mcr.microsoft.com/devcontainers/universal:2",
+  "features": {
+    "ghcr.io/devcontainers/features/python:1": {
+      "version": "3.11"
+    },
+    "ghcr.io/devcontainers/features/docker-in-docker:1": {},
+    "ghcr.io/devcontainers/features/github-cli:1": {},
+    "ghcr.io/devcontainers/features/node:1": {
+      "version": "18"
+    },
+    "ghcr.io/devcontainers/features/postgres:1": {
+      "version": "15"
+    },
+    "ghcr.io/devcontainers/features/redis:1": {
+      "version": "7"
+    }
+  },
+  "postCreateCommand": "pip install torch transformers datasets scikit-learn flask fastapi langchain openai jupyterlab sqlalchemy psycopg2 redis uvicorn",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-python.python",
+        "ms-azuretools.vscode-docker",
+        "github.vscode-pull-request-github",
+        "esbenp.prettier-vscode",
+        "ms-toolsai.jupyter"
+      ]
+    }
+  },
+  "forwardPorts": [5432, 6379, 8888, 8000],
+  "remoteUser": "vscode"
+}
