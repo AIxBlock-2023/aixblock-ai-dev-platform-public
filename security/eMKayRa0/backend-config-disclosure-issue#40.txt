@@ -1,0 +1,1 @@
+This placeholder relates to Issue #40: Sensitive backend configuration disclosure via the /api/masterdata endpoint. The API leaks wallet identifiers, roadmap plans, and internal logic without authentication.
