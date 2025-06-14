@@ -1,0 +1,1 @@
+This file is a placeholder for Issue #31 regarding information disclosure through the exposed CGI script 'printenv.pl' on dev.aixblock.io.
