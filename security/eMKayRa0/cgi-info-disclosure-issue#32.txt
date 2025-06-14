@@ -1,0 +1,1 @@
+This file is a placeholder for Issue #32 involving information disclosure via the printenv.pl CGI script on jupyter.aixblock.io.
