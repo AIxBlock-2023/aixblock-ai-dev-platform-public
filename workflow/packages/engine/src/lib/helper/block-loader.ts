@@ -1,6 +1,8 @@
 import { Action, Piece, PiecePropertyMap, Trigger } from 'workflow-blocks-framework'
 import { AIxBlockError, ErrorCode, ExecutePropsOptions, extractBlockFromModule, getPackageAliasForBlock, isNil } from 'workflow-shared'
 
+// Define the whitelisted directory for FILE source blocks
+const ALLOWED_BLOCKS_DIR = 'blocks'
 
 const loadBlockOrThrow = async (
     { blockName, pieceVersion, piecesSource }:
@@ -124,7 +126,32 @@ const getPackageAlias = ({ blockName, pieceVersion, piecesSource }: {
     pieceVersion: string
 }) => {
     if (piecesSource.trim() === 'FILE') {
-        return blockName
+        // Validate blockName to prevent directory traversal
+        if (blockName.includes('..') || blockName.startsWith('/')) {
+            throw new AIxBlockError({
+                code: ErrorCode.BLOCK_NOT_FOUND,
+                params: {
+                    blockName,
+                    pieceVersion,
+                    message: 'Invalid block path: Path traversal not allowed',
+                },
+            })
+        }
+
+        // Ensure the block is in the whitelisted directory
+        const normalizedPath = blockName.replace(/\\/g, '/')
+        if (normalizedPath.includes('/')) {
+            throw new AIxBlockError({
+                code: ErrorCode.BLOCK_NOT_FOUND,
+                params: {
+                    blockName,
+                    pieceVersion,
+                    message: 'Invalid block path: Block must be in the allowed blocks directory',
+                },
+            })
+        }
+
+        return `./${ALLOWED_BLOCKS_DIR}/${normalizedPath}`
     }
 
     return getPackageAliasForBlock({
