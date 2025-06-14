@@ -1,0 +1,3 @@
+This file is a placeholder for Issue #35, reporting sensitive information disclosure across two unauthenticated endpoints:
+1. /cgi-bin/printenv.pl on tb.aixblock.io
+2. /metrics on grafana.aixblock.io:9091
