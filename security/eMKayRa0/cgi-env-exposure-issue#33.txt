@@ -1,0 +1,1 @@
+This file is a placeholder for Issue #33 regarding sensitive environment variable disclosure via an exposed printenv.pl CGI script on stag.aixblock.io.
