@@ -1,0 +1,1 @@
+This placeholder file corresponds to Issue #38, which reports an unauthenticated exposure of the Go pprof debug interface at http://grafana.aixblock.io:9090/debug/pprof/.
