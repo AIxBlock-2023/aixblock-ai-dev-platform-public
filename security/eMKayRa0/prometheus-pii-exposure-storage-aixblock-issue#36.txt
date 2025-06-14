@@ -1,0 +1,1 @@
+This placeholder file corresponds to Issue #36, which reports sensitive telemetry data exposure from an unauthenticated Prometheus endpoint at http://storage.aixblock.io:9091/metrics.
