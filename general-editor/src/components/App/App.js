@@ -48,6 +48,7 @@ import { isDefined } from "../../utils/utilities";
 import { FF_DEV_1170, isFF } from "../../utils/feature-flags";
 import { Annotation } from "./Annotation";
 import { Button } from "../../common/Button/Button";
+import { sanitizeHTML, validateScriptContent } from "../../utils/security";
 
 /**
  * App
@@ -81,6 +82,20 @@ class App extends Component {
 
   componentWillUnmount() {
     clearInterval(this.mainContentTimeout);
+  }
+
+  // Security: Sanitize description content to prevent XSS
+  sanitizeDescription(description) {
+    if (!description || typeof description !== 'string') {
+      return '';
+    }
+
+    if (!validateScriptContent(description)) {
+      console.warn('Security: Potentially dangerous description content blocked', description);
+      return 'Description content blocked for security reasons.';
+    }
+
+    return sanitizeHTML(description);
   }
 
   renderSuccess() {
@@ -261,7 +276,7 @@ class App extends Component {
           <Provider store={store}>
             {store.showingDescription && (
               <Segment className="lsf-editor_description">
-                <div dangerouslySetInnerHTML={{ __html: store.description }} />
+                <div dangerouslySetInnerHTML={{ __html: this.sanitizeDescription(store.description) }} />
               </Segment>
             )}
 
