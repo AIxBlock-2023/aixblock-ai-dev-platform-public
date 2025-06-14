@@ -1,0 +1,1 @@
+This file is a placeholder for Issue #30 regarding an open redirect vulnerability on the Grafana instance, tracked under CVE-2025-4123.
